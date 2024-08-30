@@ -27,6 +27,7 @@ import {
   LogOut,
   Users,
   AlertTriangle,
+  Eclipse,
 } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
@@ -79,8 +80,8 @@ export default function Home() {
 
   const plans = [
     { name: "Básico", price: "Gratis", features: ["1 quiniela", "5 amigos", "Publicidad"] },
-    { name: "Pro", price: "$9.99/mes", features: ["Quinielas ilimitadas", "Amigos ilimitados", "Sin publicidad"] },
-    { name: "Premium", price: "$19.99/mes", features: ["Todo en Pro", "Estadísticas avanzadas", "Soporte prioritario"] }
+    { name: "Pro", price: "Próximamente", features: ["Quinielas ilimitadas", "Amigos ilimitados", "Sin publicidad"] },
+    { name: "Premium", price: "Próximamente", features: ["Todo en Pro", "Estadísticas avanzadas", "Soporte prioritario"] }
   ];
 
   const handleProfileUpdate = (e) => {
@@ -94,8 +95,8 @@ export default function Home() {
       {/* Navbar */}
       <nav className="bg-primary text-primary-foreground p-4 flex justify-between items-center">
         <div className="flex items-center space-x-4">
-          {/* <Menu className="h-6 w-6 md:hidden" /> */}
-          <h1 className="text-xl font-bold">Astro Quinielas</h1>
+          <Eclipse className="h-6 w-6" />
+          <h1 className="text-xl font-bold font-poppins">Astro Quinielas</h1>
         </div>
         <div className="flex items-center space-x-4">
           <span className="hidden md:inline">Créditos: $1000</span>
@@ -138,9 +139,14 @@ export default function Home() {
           <div className="max-w-4xl mx-auto">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold">Configuración</h2>
-              <Button variant="outline" onClick={() => setShowSettings(false)}>Volver</Button>
+              <Button variant="outline" onClick={() => setShowSettings(false)}>
+                Volver
+              </Button>
             </div>
-            <Tabs value={activeSettingsTab} onValueChange={setActiveSettingsTab}>
+            <Tabs
+              value={activeSettingsTab}
+              onValueChange={setActiveSettingsTab}
+            >
               <TabsList className="w-full justify-start">
                 <TabsTrigger value="plan">Plan Actual</TabsTrigger>
                 <TabsTrigger value="profile">Perfil</TabsTrigger>
@@ -148,7 +154,9 @@ export default function Home() {
                 <TabsTrigger value="support">Soporte</TabsTrigger>
               </TabsList>
               <TabsContent value="plan">
-                <h3 className="text-xl font-semibold mb-4">Planes Disponibles</h3>
+                <h3 className="text-xl font-semibold mb-4">
+                  Planes Disponibles
+                </h3>
                 <div className="grid gap-6 md:grid-cols-3">
                   {plans.map((plan) => (
                     <Card key={plan.name}>
@@ -165,7 +173,9 @@ export default function Home() {
                       </CardContent>
                       <CardFooter>
                         <Button className="w-full">
-                          {plan.name === "Básico" ? "Plan Actual" : `Cambiar a ${plan.name}`}
+                          {plan.name === "Básico"
+                            ? "Plan Actual"
+                            : `Cambiar a ${plan.name}`}
                         </Button>
                       </CardFooter>
                     </Card>
@@ -180,7 +190,9 @@ export default function Home() {
                     <Input
                       id="name"
                       value={userProfile.name}
-                      onChange={(e) => setUserProfile({ ...userProfile, name: e.target.value })}
+                      onChange={(e) =>
+                        setUserProfile({ ...userProfile, name: e.target.value })
+                      }
                     />
                   </div>
                   <div className="space-y-2">
@@ -189,7 +201,12 @@ export default function Home() {
                       id="email"
                       type="email"
                       value={userProfile.email}
-                      onChange={(e) => setUserProfile({ ...userProfile, email: e.target.value })}
+                      onChange={(e) =>
+                        setUserProfile({
+                          ...userProfile,
+                          email: e.target.value,
+                        })
+                      }
                     />
                   </div>
                   <div className="space-y-2">
@@ -197,42 +214,65 @@ export default function Home() {
                     <Input
                       id="username"
                       value={userProfile.username}
-                      onChange={(e) => setUserProfile({ ...userProfile, username: e.target.value })}
+                      onChange={(e) =>
+                        setUserProfile({
+                          ...userProfile,
+                          username: e.target.value,
+                        })
+                      }
                     />
                   </div>
                   <Button type="submit">Actualizar Perfil</Button>
                 </form>
               </TabsContent>
               <TabsContent value="credits">
-                <h3 className="text-xl font-semibold mb-4">Gestión de Créditos</h3>
+                <h3 className="text-xl font-semibold mb-4">
+                  Gestión de Créditos
+                </h3>
                 <p className="mb-4">Saldo actual: $1000</p>
                 <Button>Agregar Créditos</Button>
               </TabsContent>
               <TabsContent value="support">
                 <h3 className="text-xl font-semibold mb-4">Soporte</h3>
-                <p className="mb-4">Si necesitas ayuda, no dudes en contactarnos:</p>
+                <p className="mb-4">
+                  Si necesitas ayuda, no dudes en contactarnos:
+                </p>
                 <ul className="list-disc list-inside space-y-2">
-                  <li>Email: soporte@betsports.com</li>
-                  <li>Teléfono: +1 234 567 8900</li>
-                  <li>Chat en vivo: Disponible de 9am a 5pm</li>
+                  <li>Email: jesus@arciniega.dev</li>
+                  {/* <li>Teléfono: +1 234 567 8900</li> */}
+                  {/* <li>Chat en vivo: Disponible de 9am a 5pm</li> */}
                 </ul>
               </TabsContent>
             </Tabs>
           </div>
         ) : (
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="w-full"
+          >
             <TabsList className="w-full justify-start">
               <TabsTrigger value="standings">Tabla de Posiciones</TabsTrigger>
               <TabsTrigger value="live">Juegos en Directo</TabsTrigger>
               <TabsTrigger value="participants">Participantes</TabsTrigger>
               <TabsTrigger value="quinielas">Quinielas</TabsTrigger>
             </TabsList>
-            
+
             <TabsContent value="live">
               <div className="grid gap-4 mt-4">
                 {[
-                  { home: teams[0], away: teams[1], score: "2 - 1", time: "65'" },
-                  { home: teams[2], away: teams[3], score: "0 - 0", time: "32'" },
+                  {
+                    home: teams[0],
+                    away: teams[1],
+                    score: "2 - 1",
+                    time: "65'",
+                  },
+                  {
+                    home: teams[2],
+                    away: teams[3],
+                    score: "0 - 0",
+                    time: "32'",
+                  },
                 ].map((game, index) => (
                   <div
                     key={index}
@@ -352,7 +392,9 @@ export default function Home() {
                     <Button
                       key={quiniela.id}
                       variant={
-                        activeQuiniela.id === quiniela.id ? "default" : "outline"
+                        activeQuiniela.id === quiniela.id
+                          ? "default"
+                          : "outline"
                       }
                       className="h-auto py-4 justify-start"
                       onClick={() => setActiveQuiniela(quiniela)}
@@ -386,7 +428,9 @@ export default function Home() {
                       maxFriendsInFreeVersion && (
                       <Alert className="mt-4">
                         <AlertTriangle className="h-4 w-4" />
-                        <AlertTitle>Límite de participantes alcanzado</AlertTitle>
+                        <AlertTitle>
+                          Límite de participantes alcanzado
+                        </AlertTitle>
                         <AlertDescription>
                           Has alcanzado el límite de {maxFriendsInFreeVersion}{" "}
                           participantes en la versión gratuita.
