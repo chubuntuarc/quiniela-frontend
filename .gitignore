@@ -3,6 +3,10 @@
 /.pnp
 .pnp.js
 
+# Next.js
+/.next/
+.next
+
 # Testing
 /coverage
 
