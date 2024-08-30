@@ -33,6 +33,7 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { StandingsTable } from '../components/standings';
 
 const teams = [
   { name: "América", logo: "/placeholder.svg?height=32&width=32" },
@@ -93,7 +94,7 @@ export default function Home() {
       {/* Navbar */}
       <nav className="bg-primary text-primary-foreground p-4 flex justify-between items-center">
         <div className="flex items-center space-x-4">
-          <Menu className="h-6 w-6 md:hidden" />
+          {/* <Menu className="h-6 w-6 md:hidden" /> */}
           <h1 className="text-xl font-bold">Astro Quinielas</h1>
         </div>
         <div className="flex items-center space-x-4">
@@ -226,43 +227,7 @@ export default function Home() {
               <TabsTrigger value="participants">Participantes</TabsTrigger>
               <TabsTrigger value="quinielas">Quinielas</TabsTrigger>
             </TabsList>
-            <TabsContent value="standings">
-              <table className="w-full mt-4">
-                <thead>
-                  <tr className="bg-muted">
-                    <th className="p-2 text-left">Pos</th>
-                    <th className="p-2 text-left">Equipo</th>
-                    <th className="p-2 text-center">PJ</th>
-                    <th className="p-2 text-center">PG</th>
-                    <th className="p-2 text-center">PE</th>
-                    <th className="p-2 text-center">PP</th>
-                    <th className="p-2 text-center">Pts</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {teams.map((team, index) => (
-                    <tr key={index} className="border-b">
-                      <td className="p-2">{index + 1}</td>
-                      <td className="p-2 flex items-center">
-                        <Image
-                          src={team.logo}
-                          alt={team.name}
-                          width={24}
-                          height={24}
-                          className="mr-2"
-                        />
-                        {team.name}
-                      </td>
-                      <td className="p-2 text-center">{10}</td>
-                      <td className="p-2 text-center">{8 - index}</td>
-                      <td className="p-2 text-center">{1}</td>
-                      <td className="p-2 text-center">{1 + index}</td>
-                      <td className="p-2 text-center">{25 - index * 3}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </TabsContent>
+            
             <TabsContent value="live">
               <div className="grid gap-4 mt-4">
                 {[
@@ -437,6 +402,9 @@ export default function Home() {
                     )}
                 </div>
               </div>
+            </TabsContent>
+            <TabsContent value="standings">
+              <StandingsTable teams={teams} />
             </TabsContent>
           </Tabs>
         )}
