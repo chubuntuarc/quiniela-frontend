@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+import Login from "../components/login";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -65,6 +67,8 @@ const quinielas = [
 ];
 
 export default function Home() {
+  const [session, setSession] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("standings");
   const [activeQuiniela, setActiveQuiniela] = useState(quinielas[0]);
   const [isPremium, setIsPremium] = useState(false);
@@ -90,6 +94,27 @@ export default function Home() {
     // Aquí iría la lógica para actualizar el perfil en el backend
     alert("Perfil actualizado correctamente");
   };
+  
+  useEffect(() => {
+    // Check for active session here
+    // This is a placeholder, replace with your actual session check
+    const checkSession = async () => {
+      // Simulating an API call or local storage check
+      const activeSession = localStorage.getItem("session");
+      setSession(activeSession);
+      setLoading(false);
+    };
+
+    checkSession();
+  }, []);
+  
+  if (loading) {
+    return <div>Loading...</div>; // Or a loading spinner
+  }
+
+  if (!session) {
+    return <Login />;
+  }
 
   return (
     <div className="flex flex-col h-screen">
