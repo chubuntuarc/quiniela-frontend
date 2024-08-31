@@ -11,15 +11,11 @@ export function StandingsTable() {
     async function fetchData() {
       try {
         const data = await fetchStandings();
-        console.log(data);
-        console.log(CURRENT_SEASON_NAME);
         const aperturaTeams = data.standings.find((standing) =>
           standing[0].group.includes(CURRENT_SEASON_NAME)
         );
-        console.log(aperturaTeams);
         setTeams(aperturaTeams || []);
       } catch (error) {
-        console.error('Error fetching data:', error);
         setError('Ocurrio un problema al cargar los datos. Estamos trabajando en ello.');
       }
     }

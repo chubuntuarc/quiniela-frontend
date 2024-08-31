@@ -35,6 +35,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { StandingsTable } from '../components/standings';
+import { Matches } from '../components/matches';
 
 const teams = [
   { name: "América", logo: "/placeholder.svg?height=32&width=32" },
@@ -99,7 +100,7 @@ export default function Home() {
           <h1 className="text-xl font-bold font-poppins">Astro Quinielas</h1>
         </div>
         <div className="flex items-center space-x-4">
-          <span className="hidden md:inline">Créditos: $1000</span>
+          {/* <span className="hidden md:inline">Créditos: $1000</span> */}
           <Bell className="h-6 w-6" />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -116,10 +117,10 @@ export default function Home() {
                 <Settings className="mr-2 h-4 w-4" />
                 <span>Configuración</span>
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              {/* <DropdownMenuItem>
                 <CreditCard className="mr-2 h-4 w-4" />
                 <span>Registrar créditos</span>
-              </DropdownMenuItem>
+              </DropdownMenuItem> */}
               <DropdownMenuItem>
                 <HelpCircle className="mr-2 h-4 w-4" />
                 <span>Ayuda</span>
@@ -150,7 +151,7 @@ export default function Home() {
               <TabsList className="w-full justify-start">
                 <TabsTrigger value="plan">Plan Actual</TabsTrigger>
                 <TabsTrigger value="profile">Perfil</TabsTrigger>
-                <TabsTrigger value="credits">Créditos</TabsTrigger>
+                {/* <TabsTrigger value="credits">Créditos</TabsTrigger> */}
                 <TabsTrigger value="support">Soporte</TabsTrigger>
               </TabsList>
               <TabsContent value="plan">
@@ -225,13 +226,13 @@ export default function Home() {
                   <Button type="submit">Actualizar Perfil</Button>
                 </form>
               </TabsContent>
-              <TabsContent value="credits">
+              {/* <TabsContent value="credits">
                 <h3 className="text-xl font-semibold mb-4">
                   Gestión de Créditos
                 </h3>
                 <p className="mb-4">Saldo actual: $1000</p>
                 <Button>Agregar Créditos</Button>
-              </TabsContent>
+              </TabsContent> */}
               <TabsContent value="support">
                 <h3 className="text-xl font-semibold mb-4">Soporte</h3>
                 <p className="mb-4">
@@ -253,60 +254,13 @@ export default function Home() {
           >
             <TabsList className="w-full justify-start">
               <TabsTrigger value="standings">Tabla de Posiciones</TabsTrigger>
-              <TabsTrigger value="live">Juegos en Directo</TabsTrigger>
+              <TabsTrigger value="live">Juegos de la jornada</TabsTrigger>
               <TabsTrigger value="participants">Participantes</TabsTrigger>
               <TabsTrigger value="quinielas">Quinielas</TabsTrigger>
             </TabsList>
 
             <TabsContent value="live">
-              <div className="grid gap-4 mt-4">
-                {[
-                  {
-                    home: teams[0],
-                    away: teams[1],
-                    score: "2 - 1",
-                    time: "65'",
-                  },
-                  {
-                    home: teams[2],
-                    away: teams[3],
-                    score: "0 - 0",
-                    time: "32'",
-                  },
-                ].map((game, index) => (
-                  <div
-                    key={index}
-                    className="bg-muted p-4 rounded-lg flex justify-between items-center"
-                  >
-                    <div className="flex items-center">
-                      <Image
-                        src={game.home.logo}
-                        alt={game.home.name}
-                        width={32}
-                        height={32}
-                        className="mr-2"
-                      />
-                      <span>{game.home.name}</span>
-                    </div>
-                    <div className="text-center">
-                      <div className="font-bold">{game.score}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {game.time}
-                      </div>
-                    </div>
-                    <div className="flex items-center">
-                      <span>{game.away.name}</span>
-                      <Image
-                        src={game.away.logo}
-                        alt={game.away.name}
-                        width={32}
-                        height={32}
-                        className="ml-2"
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <Matches />
             </TabsContent>
             <TabsContent value="participants">
               <table className="w-full mt-4">
