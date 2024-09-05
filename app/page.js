@@ -113,7 +113,7 @@ export default function Home() {
   }
 
   if (!session) {
-    return <Login />;
+    return <Login session={session} setSession={setSession} />;
   }
 
   return (

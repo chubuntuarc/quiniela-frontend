@@ -2,45 +2,24 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
-import { useRouter } from "next/router";
-import { createClient } from '@vercel/postgres';
-import Link from 'next/link';
 import Signup from "./signup";
 import { Eclipse, Eye, EyeOff } from "lucide-react";
+import { loginUser } from "@/lib/login"; // Import the loginUser function
 
-export default function Login() {
+export default function Login({ session, setSession }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showSignup, setShowSignup] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  // const router = useRouter();
-
-  // const verifyUser = async (email, password) => {
-  //   const client = createClient();
-  //   await client.connect();
-  //   try {
-  //     const { rows } = await client.query(
-  //       'SELECT * FROM users WHERE email = $1 AND password = $2',
-  //       [email, password]
-  //     );
-  //     return rows.length > 0;
-  //   } finally {
-  //     await client.end();
-  //   }
-  // };
-
   const handleSubmit = async (e) => {
-    // e.preventDefault();
-    // const isValid = await verifyUser(email, password);
-    // if (isValid) {
-    //   if (typeof window !== "undefined") {
-    //     localStorage.setItem('session', 'active');
-    //     router.push('/dashboard');
-    //   }
-    // } else {
-    //   alert('Invalid credentials');
-    // }
+    e.preventDefault();
+    const success = await loginUser(email, password);
+    if (success) {
+      setSession(success.session);
+    } else {
+      alert('Invalid credentials');
+    }
   };
 
   return (
