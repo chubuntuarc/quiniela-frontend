@@ -2,6 +2,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
+import { Eclipse, Eye, EyeOff } from "lucide-react";
+import { signupUser, checkUserExists, validateSupabaseConnection } from "@/lib/signup";
 
 export default function Signup({ setShowSignup }) {
   const [formData, setFormData] = useState({
@@ -10,6 +12,9 @@ export default function Signup({ setShowSignup }) {
     password: "",
     confirmPassword: "",
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -17,21 +22,44 @@ export default function Signup({ setShowSignup }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(""); // Clear any previous errors
     if (formData.password !== formData.confirmPassword) {
-      alert("Las contraseñas no coinciden");
+      setError("Las contraseñas no coinciden");
       return;
     }
-    // Implement signup logic here using formData
-    // You'll need to use an API route to handle the signup process
-    // and interact with your Vercel database
-    console.log("Form submitted:", formData);
+    try {
+      // Check if Supabase connection is successful
+      const isSupabaseConnected = await validateSupabaseConnection();
+      if (!isSupabaseConnected) {
+        alert("Error al conectar con Supabase. Por favor, intenta de nuevo más tarde.");
+        return;
+      }
+      // Check if user already exists
+      const userExists = await checkUserExists(formData.email);
+      if (userExists) {
+        alert("Este correo electrónico ya está registrado. Por favor, inicia sesión o usa otro correo.");
+        return;
+      }
+      
+      // If user doesn't exist, proceed with signup
+      const result = await signupUser(formData);
+      console.log("Registro exitoso:", result);
+      alert("Cuenta creada con éxito. Por favor, inicia sesión.");
+      setShowSignup(false);
+    } catch (error) {
+      console.error("Error en el registro:", error);
+      setError(error.message || "Hubo un error durante el registro. Por favor, intenta de nuevo.");
+    }
   };
 
   return (
     <div className="flex min-h-screen items-center justify-center">
       <form onSubmit={handleSubmit} className="mx-auto max-w-sm space-y-6">
         <div className="space-y-2 text-center">
-          <h1 className="text-3xl font-bold">Astro Quinielas</h1>
+          <h1 className="text-3xl font-bold font-poppins flex items-center gap-2">
+            <Eclipse className="h-6 w-6" />
+            Astro Quinielas
+          </h1>
           <p className="text-gray-500 dark:text-gray-400">
             Hola, crea tu cuenta para comenzar a jugar
           </p>
@@ -62,28 +90,55 @@ export default function Signup({ setShowSignup }) {
           </div>
           <div className="space-y-2">
             <Label htmlFor="password">Contraseña</Label>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              placeholder="********"
-              required
-              value={formData.password}
-              onChange={handleChange}
-            />
+            <div className="relative">
+              <Input
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="********"
+                required
+                value={formData.password}
+                onChange={handleChange}
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="absolute right-0 top-0 h-full px-3"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </Button>
+            </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="confirmPassword">Confirmar Contraseña</Label>
-            <Input
-              id="confirmPassword"
-              name="confirmPassword"
-              type="password"
-              placeholder="********"
-              required
-              value={formData.confirmPassword}
-              onChange={handleChange}
-            />
+            <div className="relative">
+              <Input
+                id="confirmPassword"
+                name="confirmPassword"
+                type={showConfirmPassword ? "text" : "password"}
+                placeholder="********"
+                required
+                value={formData.confirmPassword}
+                onChange={handleChange}
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="absolute right-0 top-0 h-full px-3"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              >
+                {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </Button>
+            </div>
           </div>
+          {error && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+              <span className="block sm:inline">{error}</span>
+            </div>
+          )}
           <Button className="w-full" type="submit">
             Crear cuenta
           </Button>

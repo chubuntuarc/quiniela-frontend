@@ -6,11 +6,13 @@ import { useRouter } from "next/router";
 import { createClient } from '@vercel/postgres';
 import Link from 'next/link';
 import Signup from "./signup";
+import { Eclipse, Eye, EyeOff } from "lucide-react";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showSignup, setShowSignup] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   // const router = useRouter();
 
@@ -46,7 +48,10 @@ export default function Login() {
       {!showSignup ? (
         <form onSubmit={handleSubmit} className="mx-auto max-w-sm space-y-6">
           <div className="space-y-2 text-center">
-            <h1 className="text-3xl font-bold">Astro Quinielas</h1>
+            <h1 className="text-3xl font-bold font-poppins flex items-center gap-2">
+              <Eclipse className="h-6 w-6" />
+              Astro Quinielas
+            </h1>
             <p className="text-gray-500 dark:text-gray-400">
               Inicia sesión a tu cuenta
             </p>
@@ -65,20 +70,35 @@ export default function Login() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Contraseña</Label>
-              <Input
-                id="password"
-                type="password"
-                required
-                value={password}
-                placeholder="********"
-                onChange={(e) => setPassword(e.target.value)}
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  required
+                  value={password}
+                  placeholder="********"
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <button
+                  type="button"
+                  className="absolute right-2 top-1/2 -translate-y-1/2"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4 text-gray-500" />
+                  ) : (
+                    <Eye className="h-4 w-4 text-gray-500" />
+                  )}
+                </button>
+              </div>
             </div>
             <Button className="w-full" type="submit">
               Entra con tu correo
             </Button>
             <div className="text-center">
-              <span className="text-sm text-gray-600">No tienes una cuenta </span>
+              <span className="text-sm text-gray-600">
+                No tienes una cuenta{" "}
+              </span>
               <button
                 type="button"
                 className="text-sm text-blue-600 hover:underline"
