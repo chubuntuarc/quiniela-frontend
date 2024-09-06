@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { getSupabase } from '@/lib/supabaseClient'; // Add this import
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 function ProfileForm({ initialProfile, onSubmit }) {
   const [userProfile, setUserProfile] = useState({
@@ -10,15 +12,20 @@ function ProfileForm({ initialProfile, onSubmit }) {
     username: initialProfile.user_metadata.id || '',
     phone: initialProfile.phone || '',
     created_at: initialProfile.user_metadata.created_at || '',
-    profileImage: initialProfile.user_metadata.avatar_url || '',
+    profileImage: initialProfile.identities[0].identity_data.profile_picture || '',
     password: '',
     confirmPassword: '',
   });
   const [showPassword, setShowPassword] = useState(false);
   const [passwordError, setPasswordError] = useState('');
+  const [error, setError] = useState('');
+  const [showAlert, setShowAlert] = useState(false);
+  let supabaseInstance = null;
+  console.log(initialProfile);
 
-  const handleProfileUpdate = (e) => {
+  const handleProfileUpdate = async (e) => {
     e.preventDefault();
+    setError(''); // Clear any previous errors
     const updatedProfile = { ...userProfile };
     
     // Only include email if it has changed
@@ -34,7 +41,57 @@ function ProfileForm({ initialProfile, onSubmit }) {
       delete updatedProfile.confirmPassword;
     }
     
-    onSubmit(updatedProfile);
+    try {
+      const { data, error } = await updateAuthProfile(updatedProfile);
+      if (error) throw error;
+      if (typeof onSubmit === 'function') {
+        onSubmit(data);
+      } else {
+        setShowAlert(true);
+      }
+    } catch (error) {
+      console.error('Error actualizando el perfil:', error.message);
+      setError(error.message || 'Ocurrió un error inesperado, intenta más tarde');
+    }
+  };
+
+  useEffect(() => {
+    if (showAlert) {
+      const timer = setTimeout(() => {
+        setShowAlert(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [showAlert]);
+
+  const updateAuthProfile = async (profile) => {
+    if (supabaseInstance === null) {
+      supabaseInstance = getSupabase();
+    }
+    const updates = {
+      data: {
+        name: profile.name,
+        avatar_url: profile.profileImage,
+      },
+    };
+
+    if (profile.email) {
+      updates.email = profile.email;
+    }
+
+    if (profile.password) {
+      updates.password = profile.password;
+    }
+
+    if (profile.phone !== initialProfile.phone) {
+      updates.phone = profile.phone;
+    }
+
+    const { data, error } = await supabaseInstance.auth.updateUser(updates);
+
+    if (error) throw error;
+
+    return data;
   };
 
   const handleInputChange = (e) => {
@@ -80,8 +137,22 @@ function ProfileForm({ initialProfile, onSubmit }) {
   return (
     <div className="max-w-2xl mx-auto p-4">
       <h3 className="text-2xl font-semibold mb-6">Editar Perfil</h3>
+      {showAlert && (
+        <Alert className="mb-4 bg-[#0f172a] text-[#FFFF]">
+          <AlertTitle className="text-[#FFFF]">Éxito</AlertTitle>
+          <AlertDescription className="text-[#FFFF]">
+            Perfil actualizado correctamente
+          </AlertDescription>
+        </Alert>
+      )}
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+          <strong className="font-bold">Error: </strong>
+          <span className="block sm:inline">{error}</span>
+        </div>
+      )}
       <form onSubmit={handleProfileUpdate} className="space-y-6">
-        <div className="space-y-4">
+        {/* <div className="space-y-4">
           <Label htmlFor="profileImage" className="text-lg">Imagen de Perfil</Label>
           <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">
             <div className="w-32 h-32 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
@@ -105,8 +176,8 @@ function ProfileForm({ initialProfile, onSubmit }) {
               className="w-full sm:w-auto"
             />
           </div>
-        </div>
-        {["name", "email", "phone"].map((field) => (
+        </div> */}
+        {["name", "email"].map((field) => (
           <div key={field} className="space-y-2">
             <Label htmlFor={field} className="text-lg">
               {field === "name"

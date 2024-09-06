@@ -125,11 +125,18 @@ export default function Home() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Avatar className="cursor-pointer">
-                <AvatarImage
-                  src="/placeholder.svg?height=32&width=32"
-                  alt="@usuario"
-                />
-                <AvatarFallback>U</AvatarFallback>
+                {userProfile.profilePicture ? (
+                  <AvatarImage
+                    src={userProfile.user_metadata.avatar_url}
+                    alt={userProfile.name}
+                  />
+                ) : (
+                  <AvatarFallback
+                    style={{ color: "black", backgroundColor: "white" }}
+                  >
+                    {userProfile.user_metadata.name.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                )}
               </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
