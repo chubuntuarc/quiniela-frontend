@@ -11,14 +11,20 @@ export default function Login({ setSession }) {
   const [password, setPassword] = useState("");
   const [showSignup, setShowSignup] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(""); // New state for error message
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrorMessage(""); // Clear any previous error messages
     const success = await loginUser(email, password);
-    if (success) {
+    if (success.success) {
       setSession(success.session);
+      localStorage.setItem("session", success.session);
+      localStorage.setItem("user", JSON.stringify(success.user));
+      return;
     } else {
-      alert('Invalid credentials');
+      setErrorMessage(success.error || "Revisa tu usuario y contraseña");
+      return;
     }
   };
 
@@ -107,9 +113,14 @@ export default function Login({ setSession }) {
               Google
             </Button>
           </div>
+          {errorMessage && (
+            <div className="text-red-500 text-sm text-center">
+              {errorMessage}
+            </div>
+          )}
         </form>
       ) : (
-        <Signup setShowSignup={setShowSignup} supabase={supabase} />
+        <Signup setShowSignup={setShowSignup} />
       )}
     </div>
   );
