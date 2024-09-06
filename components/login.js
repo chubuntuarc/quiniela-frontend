@@ -18,9 +18,9 @@ export default function Login({ setSession, setUser }) {
     setErrorMessage(""); // Clear any previous error messages
     const success = await loginUser(email, password);
     if (success.success) {
-      setSession(success.session);
+      setSession(true);
       setUser(success.user);
-      localStorage.setItem("session", success.session);
+      localStorage.setItem("session", true);
       localStorage.setItem("user", JSON.stringify(success.user));
       return;
     } else {

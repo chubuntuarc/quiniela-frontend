@@ -34,11 +34,10 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { StandingsTable } from '../components/standings';
 import { Matches } from '../components/matches';
+import ProfileForm from '../components/profile';
 
 const teams = [
   { name: "América", logo: "/placeholder.svg?height=32&width=32" },
@@ -85,12 +84,6 @@ export default function Home() {
     { name: "Pro", price: "Próximamente", features: ["Quinielas ilimitadas", "Amigos ilimitados", "Sin publicidad"] },
     { name: "Premium", price: "Próximamente", features: ["Todo en Pro", "Estadísticas avanzadas", "Soporte prioritario"] }
   ];
-
-  const handleProfileUpdate = (e) => {
-    e.preventDefault();
-    // Aquí iría la lógica para actualizar el perfil en el backend
-    alert("Perfil actualizado correctamente");
-  };
   
   useEffect(() => {
     // Check for active session here
@@ -99,6 +92,7 @@ export default function Home() {
       // Simulating an API call or local storage check
       const activeSession = localStorage.getItem("session");
       setSession(activeSession);
+      setUserProfile(JSON.parse(localStorage.getItem("user")));
       setLoading(false);
     };
 
@@ -210,47 +204,7 @@ export default function Home() {
                 </div>
               </TabsContent>
               <TabsContent value="profile">
-                <h3 className="text-xl font-semibold mb-4">Editar Perfil</h3>
-                <form onSubmit={handleProfileUpdate} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Nombre</Label>
-                    <Input
-                      id="name"
-                      value={userProfile.name}
-                      onChange={(e) =>
-                        setUserProfile({ ...userProfile, name: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Correo Electrónico</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={userProfile.email}
-                      onChange={(e) =>
-                        setUserProfile({
-                          ...userProfile,
-                          email: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="username">Nombre de Usuario</Label>
-                    <Input
-                      id="username"
-                      value={userProfile.username}
-                      onChange={(e) =>
-                        setUserProfile({
-                          ...userProfile,
-                          username: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <Button type="submit">Actualizar Perfil</Button>
-                </form>
+                <ProfileForm initialProfile={userProfile} />
               </TabsContent>
               {/* <TabsContent value="credits">
                 <h3 className="text-xl font-semibold mb-4">

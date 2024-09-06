@@ -44,9 +44,9 @@ export default function Signup({ setShowSignup, setSession, setUser }) {
       // If user doesn't exist, proceed with signup
       const result = await signupUser(formData);
       console.log("Registro exitoso:", result);
-      localStorage.setItem("session", result.session);
+      localStorage.setItem("session", true);
       localStorage.setItem("user", JSON.stringify(result.user));
-      setSession(result.session);
+      setSession(true);
       setUser(result.user);
       setShowSignup(false);
     } catch (error) {
