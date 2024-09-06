@@ -30,6 +30,7 @@ import {
   Users,
   AlertTriangle,
   Eclipse,
+  Loader2,
 } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
@@ -105,7 +106,11 @@ export default function Home() {
   }, []);
   
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
   }
 
   if (!session || !userProfile) {

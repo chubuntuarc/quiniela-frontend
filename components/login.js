@@ -24,7 +24,9 @@ export default function Login({ setSession }) {
       return;
     } else {
       setErrorMessage(success.error || "Revisa tu usuario y contraseña");
-      return;
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     }
   };
 
