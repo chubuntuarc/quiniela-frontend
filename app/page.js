@@ -114,7 +114,7 @@ export default function Home() {
   }
 
   if (!session || !userProfile) {
-    return <Login setSession={setSession} />;
+    return <Login setSession={setSession} setUser={setUserProfile} />;
   }
 
   return (

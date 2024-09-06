@@ -6,7 +6,7 @@ import Signup from "./signup";
 import { Eclipse, Eye, EyeOff } from "lucide-react";
 import { loginUser } from "@/lib/login"; // Import the loginUser function
 
-export default function Login({ setSession }) {
+export default function Login({ setSession, setUser }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showSignup, setShowSignup] = useState(false);
@@ -19,6 +19,7 @@ export default function Login({ setSession }) {
     const success = await loginUser(email, password);
     if (success.success) {
       setSession(success.session);
+      setUser(success.user);
       localStorage.setItem("session", success.session);
       localStorage.setItem("user", JSON.stringify(success.user));
       return;
