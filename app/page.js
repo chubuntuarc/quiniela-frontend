@@ -74,11 +74,7 @@ export default function Home() {
   const [isPremium, setIsPremium] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [activeSettingsTab, setActiveSettingsTab] = useState("plan");
-  const [userProfile, setUserProfile] = useState({
-    name: "Juan Pérez",
-    email: "juan@example.com",
-    username: "juanperez123"
-  });
+  const [userProfile, setUserProfile] = useState(null);
 
   const maxFriendsInFreeVersion = 5;
   const maxQuinielasInFreeVersion = 1;
@@ -109,11 +105,11 @@ export default function Home() {
   }, []);
   
   if (loading) {
-    return <div>Loading...</div>; // Or a loading spinner
+    return <div>Loading...</div>;
   }
 
-  if (!session) {
-    return <Login session={session} setSession={setSession} />;
+  if (!session || !userProfile) {
+    return <Login setSession={setSession} />;
   }
 
   return (

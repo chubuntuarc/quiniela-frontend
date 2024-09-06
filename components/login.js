@@ -6,7 +6,7 @@ import Signup from "./signup";
 import { Eclipse, Eye, EyeOff } from "lucide-react";
 import { loginUser } from "@/lib/login"; // Import the loginUser function
 
-export default function Login({ session, setSession }) {
+export default function Login({ setSession }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showSignup, setShowSignup] = useState(false);
@@ -109,7 +109,7 @@ export default function Login({ session, setSession }) {
           </div>
         </form>
       ) : (
-        <Signup setShowSignup={setShowSignup} />
+        <Signup setShowSignup={setShowSignup} supabase={supabase} />
       )}
     </div>
   );
