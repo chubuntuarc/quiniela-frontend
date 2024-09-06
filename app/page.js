@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
+import { getSupabase } from '@/lib/supabaseClient';
 import Login from "../components/login";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,14 +21,10 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Bell,
-  Menu,
   PlusCircle,
   Settings,
-  CreditCard,
   HelpCircle,
   LogOut,
-  Users,
-  AlertTriangle,
   Eclipse,
   Loader2,
 } from "lucide-react";
@@ -38,6 +34,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { StandingsTable } from '../components/standings';
 import { Matches } from '../components/matches';
 import ProfileForm from '../components/profile';
+import Quinielas from '../components/quinielas';
 
 const teams = [
   { name: "América", logo: "/placeholder.svg?height=32&width=32" },
@@ -75,7 +72,7 @@ export default function Home() {
   const [showSettings, setShowSettings] = useState(false);
   const [activeSettingsTab, setActiveSettingsTab] = useState("plan");
   const [userProfile, setUserProfile] = useState(null);
-
+  let supabase = null;
   const maxFriendsInFreeVersion = 5;
   const maxQuinielasInFreeVersion = 1;
 
@@ -89,10 +86,20 @@ export default function Home() {
     // Check for active session here
     // This is a placeholder, replace with your actual session check
     const checkSession = async () => {
+      if (!supabase) {
+        supabase = getSupabase();
+      }
       // Simulating an API call or local storage check
-      const activeSession = localStorage.getItem("session");
-      setSession(activeSession);
-      setUserProfile(JSON.parse(localStorage.getItem("user")));
+      const { data: session, error } = await supabase.auth.getSession();
+      if (session.session) {
+        setSession(session.session);
+        const { data: user, error: userError } = await supabase.auth.getUser();
+        if (user) {
+          setUserProfile(user);
+        }
+        
+      }
+      
       setLoading(false);
     };
 
@@ -134,7 +141,7 @@ export default function Home() {
                   <AvatarFallback
                     style={{ color: "black", backgroundColor: "white" }}
                   >
-                    {userProfile.user_metadata.name.charAt(0).toUpperCase()}
+                    {userProfile?.user_metadata?.name?.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 )}
               </Avatar>
@@ -276,117 +283,16 @@ export default function Home() {
               </table>
             </TabsContent>
             <TabsContent value="quinielas">
-              <div className="mt-4 space-y-4">
-                {!isPremium && (
-                  <Alert>
-                    <AlertTriangle className="h-4 w-4" />
-                    <AlertTitle>Límites de la versión gratuita</AlertTitle>
-                    <AlertDescription>
-                      Estás utilizando la versión gratuita, que permite hasta{" "}
-                      {maxFriendsInFreeVersion} amigos y{" "}
-                      {maxQuinielasInFreeVersion} quiniela.
-                      <Button
-                        variant="link"
-                        className="p-0 h-auto font-normal text-primary"
-                        onClick={() => setIsPremium(true)}
-                      >
-                        Suscríbete para obtener funciones ilimitadas
-                      </Button>
-                    </AlertDescription>
-                  </Alert>
-                )}
-                <div className="flex justify-between items-center">
-                  <h2 className="text-2xl font-bold">Mis Quinielas</h2>
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button
-                        disabled={
-                          !isPremium &&
-                          quinielas.length >= maxQuinielasInFreeVersion
-                        }
-                      >
-                        <PlusCircle className="mr-2 h-4 w-4" />
-                        Crear Quiniela
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Crear Nueva Quiniela</DialogTitle>
-                      </DialogHeader>
-                      <div className="grid gap-4 py-4">
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <label htmlFor="name" className="text-right">
-                            Nombre
-                          </label>
-                          <input
-                            id="name"
-                            className="col-span-3 p-2 border rounded"
-                          />
-                        </div>
-                      </div>
-                      <Button>Crear Quiniela</Button>
-                    </DialogContent>
-                  </Dialog>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {quinielas.map((quiniela) => (
-                    <Button
-                      key={quiniela.id}
-                      variant={
-                        activeQuiniela.id === quiniela.id
-                          ? "default"
-                          : "outline"
-                      }
-                      className="h-auto py-4 justify-start"
-                      onClick={() => setActiveQuiniela(quiniela)}
-                    >
-                      <Users className="mr-2 h-4 w-4" />
-                      <div className="text-left">
-                        <div>{quiniela.name}</div>
-                        <div className="text-sm text-muted-foreground">
-                          {quiniela.participants.length} participantes
-                        </div>
-                      </div>
-                    </Button>
-                  ))}
-                </div>
-                <div className="mt-8">
-                  <h3 className="text-xl font-semibold mb-4">
-                    Participantes de {activeQuiniela.name}
-                  </h3>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {activeQuiniela.participants.map((participant, index) => (
-                      <div key={index} className="flex items-center space-x-2">
-                        <Avatar>
-                          <AvatarFallback>{participant[0]}</AvatarFallback>
-                        </Avatar>
-                        <span>{participant}</span>
-                      </div>
-                    ))}
-                  </div>
-                  {!isPremium &&
-                    activeQuiniela.participants.length >=
-                      maxFriendsInFreeVersion && (
-                      <Alert className="mt-4">
-                        <AlertTriangle className="h-4 w-4" />
-                        <AlertTitle>
-                          Límite de participantes alcanzado
-                        </AlertTitle>
-                        <AlertDescription>
-                          Has alcanzado el límite de {maxFriendsInFreeVersion}{" "}
-                          participantes en la versión gratuita.
-                          <Button
-                            variant="link"
-                            className="p-0 h-auto font-normal text-primary"
-                            onClick={() => setIsPremium(true)}
-                          >
-                            Suscríbete para agregar más amigos
-                          </Button>
-                        </AlertDescription>
-                      </Alert>
-                    )}
-                </div>
-              </div>
+              <Quinielas 
+                isPremium={isPremium} 
+                maxFriendsInFreeVersion={maxFriendsInFreeVersion} 
+                maxQuinielasInFreeVersion={maxQuinielasInFreeVersion} 
+                setIsPremium={setIsPremium} 
+                quinielas={quinielas} 
+                activeQuiniela={activeQuiniela} 
+                setActiveQuiniela={setActiveQuiniela} 
+                userProfile={userProfile}
+              />
             </TabsContent>
             <TabsContent value="standings">
               <StandingsTable teams={teams} />

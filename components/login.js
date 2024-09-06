@@ -20,14 +20,8 @@ export default function Login({ setSession, setUser }) {
     if (success.success) {
       setSession(true);
       setUser(success.user);
-      localStorage.setItem("session", true);
-      localStorage.setItem("user", JSON.stringify(success.user));
-      return;
     } else {
       setErrorMessage(success.error || "Revisa tu usuario y contraseña");
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
     }
   };
 

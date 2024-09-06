@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { Eclipse, Eye, EyeOff } from "lucide-react";
-import { signupUser, checkUserExists, validateSupabaseConnection } from "@/lib/signup";
+import { signupUser} from "@/lib/signup";
 
 export default function Signup({ setShowSignup, setSession, setUser }) {
   const [formData, setFormData] = useState({
@@ -28,27 +28,15 @@ export default function Signup({ setShowSignup, setSession, setUser }) {
       return;
     }
     try {
-      // Check if Supabase connection is successful
-      const isSupabaseConnected = await validateSupabaseConnection();
-      if (!isSupabaseConnected) {
-        alert("Error al conectar con Supabase. Por favor, intenta de nuevo más tarde.");
-        return;
-      }
-      // Check if user already exists
-      const userExists = await checkUserExists(formData.email);
-      if (userExists) {
-        alert("Este correo electrónico ya está registrado. Por favor, inicia sesión o usa otro correo.");
-        return;
-      }
-      
       // If user doesn't exist, proceed with signup
       const result = await signupUser(formData);
-      console.log("Registro exitoso:", result);
-      localStorage.setItem("session", true);
-      localStorage.setItem("user", JSON.stringify(result.user));
-      setSession(true);
-      setUser(result.user);
-      setShowSignup(false);
+      if (result.user) {
+        setSession(true);
+        setUser(result.user);
+        setShowSignup(false);
+      } else {
+        setError(result.error || "Hubo un error durante el registro. Por favor, intenta de nuevo.");
+      }
     } catch (error) {
       console.error("Error en el registro:", error);
       setError(error.message || "Hubo un error durante el registro. Por favor, intenta de nuevo.");

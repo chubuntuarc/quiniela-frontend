@@ -21,7 +21,6 @@ function ProfileForm({ initialProfile, onSubmit }) {
   const [error, setError] = useState('');
   const [showAlert, setShowAlert] = useState(false);
   let supabaseInstance = null;
-  console.log(initialProfile);
 
   const handleProfileUpdate = async (e) => {
     e.preventDefault();
