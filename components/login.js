@@ -123,7 +123,7 @@ export default function Login({ setSession, setUser }) {
           )}
         </form>
       ) : (
-        <Signup setShowSignup={setShowSignup} />
+        <Signup setShowSignup={setShowSignup} setSession={setSession} setUser={setUser} />
       )}
     </div>
   );

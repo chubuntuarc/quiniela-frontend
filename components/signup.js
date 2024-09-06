@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Eclipse, Eye, EyeOff } from "lucide-react";
 import { signupUser, checkUserExists, validateSupabaseConnection } from "@/lib/signup";
 
-export default function Signup({ setShowSignup }) {
+export default function Signup({ setShowSignup, setSession, setUser }) {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -46,6 +46,8 @@ export default function Signup({ setShowSignup }) {
       console.log("Registro exitoso:", result);
       localStorage.setItem("session", result.session);
       localStorage.setItem("user", JSON.stringify(result.user));
+      setSession(result.session);
+      setUser(result.user);
       setShowSignup(false);
     } catch (error) {
       console.error("Error en el registro:", error);
