@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { AlertTriangle, PlusCircle, Users, AlertCircle } from "lucide-react";
+import { AlertTriangle, PlusCircle, Users, AlertCircle, Trash2 } from "lucide-react";
 import { getSupabase } from '@/lib/supabaseClient';
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -25,6 +25,8 @@ const Quinielas = ({
   let supabase = null;
   const [editingQuiniela, setEditingQuiniela] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [deletingQuinielaId, setDeletingQuinielaId] = useState(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   useEffect(() => {
     fetchQuinielas();
@@ -86,6 +88,7 @@ const Quinielas = ({
       setNewQuinielaName('');
       setNewQuinielaDescription('');
       setError(null); // Clear any previous errors
+      setIsCreateModalOpen(false); // Close the dialog
     } catch (error) {
       console.error('Error creating quiniela:', error);
       setError(error.message || 'An error occurred while creating the quiniela');
@@ -133,6 +136,32 @@ const Quinielas = ({
     }
   };
 
+  const deleteQuiniela = async (quinielaId) => {
+    if (!supabase) {
+      supabase = getSupabase();
+    }
+    try {
+      if (!session && !userProfile) throw new Error("User not authenticated");
+
+      const { error } = await supabase
+        .from("quinielas")
+        .delete()
+        .eq("id", quinielaId);
+
+      if (error) throw error;
+
+      // Update local state
+      setQuinielas(quinielas.filter(q => q.id !== quinielaId));
+      if (activeQuiniela && activeQuiniela.id === quinielaId) {
+        setActiveQuiniela(quinielas[0] || null);
+      }
+      setError(null);
+    } catch (error) {
+      console.error('Error deleting quiniela:', error);
+      setError(error.message || 'Ocurrió un error al eliminar la quiniela');
+    }
+  };
+
   const handleEditClick = (quiniela) => {
     setEditingQuiniela({ ...quiniela });
     setIsEditModalOpen(true);
@@ -141,6 +170,17 @@ const Quinielas = ({
   const handleSaveEdit = async () => {
     await updateQuiniela();
     setIsEditModalOpen(false);
+  };
+
+  const handleDeleteClick = (quinielaId) => {
+    setDeletingQuinielaId(quinielaId);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (deletingQuinielaId) {
+      await deleteQuiniela(deletingQuinielaId);
+      setDeletingQuinielaId(null);
+    }
   };
 
   return (
@@ -174,7 +214,7 @@ const Quinielas = ({
 
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h2 className="text-2xl font-bold">Mis Quinielas</h2>
-        <Dialog>
+        <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
           <DialogTrigger asChild>
             <Button
               disabled={
@@ -232,7 +272,9 @@ const Quinielas = ({
             {quinielas.map((quiniela) => (
               <div key={quiniela.id} className="flex flex-col">
                 <Button
-                  variant={activeQuiniela.id === quiniela.id ? "default" : "outline"}
+                  variant={
+                    activeQuiniela.id === quiniela.id ? "default" : "outline"
+                  }
                   className="h-auto py-4 justify-start w-full"
                   onClick={() => setActiveQuiniela(quiniela)}
                 >
@@ -247,13 +289,23 @@ const Quinielas = ({
                     </div>
                   </div>
                 </Button>
-                <Button
-                  variant="outline"
-                  className="mt-2"
-                  onClick={() => handleEditClick(quiniela)}
-                >
-                  Editar
-                </Button>
+                <div className="flex mt-2 gap-2">
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => handleEditClick(quiniela)}
+                  >
+                    Editar
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    className="flex-1"
+                    onClick={() => handleDeleteClick(quiniela.id)}
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Eliminar
+                  </Button>
+                </div>
               </div>
             ))}
           </div>
@@ -272,8 +324,13 @@ const Quinielas = ({
                   <Input
                     id="edit-name"
                     className="col-span-3"
-                    value={editingQuiniela?.name || ''}
-                    onChange={(e) => setEditingQuiniela({ ...editingQuiniela, name: e.target.value })}
+                    value={editingQuiniela?.name || ""}
+                    onChange={(e) =>
+                      setEditingQuiniela({
+                        ...editingQuiniela,
+                        name: e.target.value,
+                      })
+                    }
                   />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
@@ -283,13 +340,45 @@ const Quinielas = ({
                   <Textarea
                     id="edit-description"
                     className="col-span-3"
-                    value={editingQuiniela?.description || ''}
-                    onChange={(e) => setEditingQuiniela({ ...editingQuiniela, description: e.target.value })}
+                    value={editingQuiniela?.description || ""}
+                    onChange={(e) =>
+                      setEditingQuiniela({
+                        ...editingQuiniela,
+                        description: e.target.value,
+                      })
+                    }
                   />
                 </div>
               </div>
               <DialogFooter>
                 <Button onClick={handleSaveEdit}>Guardar cambios</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          {/* Delete Confirmation Dialog */}
+          <Dialog
+            open={!!deletingQuinielaId}
+            onOpenChange={() => setDeletingQuinielaId(null)}
+          >
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Confirmar eliminación</DialogTitle>
+              </DialogHeader>
+              <DialogDescription>
+                ¿Estás seguro de que quieres eliminar esta quiniela? <br />
+                Esta acción no se puede deshacer.
+              </DialogDescription>
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => setDeletingQuinielaId(null)}
+                >
+                  Cancelar
+                </Button>
+                <Button variant="destructive" onClick={handleConfirmDelete}>
+                  Eliminar
+                </Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
