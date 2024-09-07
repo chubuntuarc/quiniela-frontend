@@ -3,10 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { AlertTriangle, PlusCircle, Users, AlertCircle, Trash2 } from "lucide-react";
+import { AlertTriangle, PlusCircle, Users, AlertCircle, Trash2, CheckCircle2 } from "lucide-react";
 import { getSupabase } from '@/lib/supabaseClient';
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
 const Quinielas = ({ 
   isPremium, 
@@ -27,6 +28,10 @@ const Quinielas = ({
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [deletingQuinielaId, setDeletingQuinielaId] = useState(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteUrl, setInviteUrl] = useState('');
+  const [successMessage, setSuccessMessage] = useState(null);
 
   useEffect(() => {
     fetchQuinielas();
@@ -183,6 +188,26 @@ const Quinielas = ({
     }
   };
 
+  const inviteByWhatsApp = () => {
+    const inviteUrl = `${window.location.origin}/invite/${activeQuiniela.id}`;
+    const message = encodeURIComponent(`¡Te invito a unirte a mi quiniela "${activeQuiniela.name}"! Haz clic en este enlace para participar: ${inviteUrl}`);
+    const whatsappUrl = `https://wa.me/?text=${message}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
+  const handleInviteByEmail = async () => {
+    // Implement your email invitation logic here
+    // This is a placeholder function
+    console.log(`Inviting ${inviteEmail} to quiniela ${activeQuiniela.id}`);
+    setSuccessMessage(`Se ha enviado una invitación a ${inviteEmail}`);
+    setInviteEmail('');
+  };
+
+  const copyInviteUrl = () => {
+    navigator.clipboard.writeText(inviteUrl);
+    setSuccessMessage("El enlace de invitación ha sido copiado al portapapeles");
+  };
+
   return (
     <div className="mt-4 space-y-4">
       {error && (
@@ -190,6 +215,14 @@ const Quinielas = ({
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      {successMessage && (
+        <Alert>
+          <CheckCircle2 className="h-4 w-4" />
+          <AlertTitle>Éxito</AlertTitle>
+          <AlertDescription>{successMessage}</AlertDescription>
         </Alert>
       )}
 
@@ -385,9 +418,43 @@ const Quinielas = ({
 
           {activeQuiniela && (
             <div className="mt-8">
-              <h3 className="text-xl font-semibold mb-4">
-                Participantes de {activeQuiniela?.name}
-              </h3>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-semibold">
+                  Participantes de {activeQuiniela?.name}
+                </h3>
+                <Dialog open={isInviteModalOpen} onOpenChange={setIsInviteModalOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline">
+                      <PlusCircle className="mr-2 h-4 w-4" />
+                      Invitar Participantes
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Invitar Participantes</DialogTitle>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="invite-email" className="text-right">
+                          Email
+                        </Label>
+                        <Input
+                          id="invite-email"
+                          className="col-span-3"
+                          value={inviteEmail}
+                          onChange={(e) => setInviteEmail(e.target.value)}
+                          placeholder="email@example.com"
+                        />
+                      </div>
+                      <Button onClick={handleInviteByEmail}>Enviar Invitación</Button>
+                      <div className="text-center">o</div>
+                      <Button onClick={inviteByWhatsApp}>
+                        Invitar por WhatsApp
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {activeQuiniela?.participants?.map((participant, index) => (
                   <div key={index} className="flex items-center space-x-2">
