@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { AlertTriangle, PlusCircle, Users, AlertCircle } from "lucide-react";
 import { getSupabase } from '@/lib/supabaseClient';
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 const Quinielas = ({ 
   isPremium, 
@@ -21,6 +23,8 @@ const Quinielas = ({
   const [newQuinielaDescription, setNewQuinielaDescription] = useState('');
   const [error, setError] = useState(null);
   let supabase = null;
+  const [editingQuiniela, setEditingQuiniela] = useState(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   useEffect(() => {
     fetchQuinielas();
@@ -73,9 +77,7 @@ const Quinielas = ({
           }
         ])
         .select();
-      
-      console.log(data);
-      console.log(error);
+
       if (error) throw error;
 
       setQuinielas([...quinielas, data[0]]);
@@ -87,6 +89,53 @@ const Quinielas = ({
       console.error('Error creating quiniela:', error);
       setError(error.message || 'An error occurred while creating the quiniela');
     }
+  };
+
+  const updateQuiniela = async () => {
+    if (!supabase) {
+      supabase = getSupabase();
+    }
+    try {
+      if (!editingQuiniela) {
+        throw new Error("No se ha seleccionado ninguna quiniela para editar");
+      }
+
+      const { data, error } = await supabase
+        .from('quinielas')
+        .update({
+          name: editingQuiniela.name,
+          description: editingQuiniela.description
+        })
+        .eq('id', editingQuiniela.id)
+        .select();
+
+      if (error) throw error;
+
+      if (data && data.length > 0) {
+        setQuinielas(quinielas.map(q => q.id === data[0].id ? data[0] : q));
+        setActiveQuiniela(data[0]);
+      } else {
+        // If no data is returned, update the local state with the edited values
+        const updatedQuiniela = { ...editingQuiniela };
+        setQuinielas(quinielas.map(q => q.id === updatedQuiniela.id ? updatedQuiniela : q));
+        setActiveQuiniela(updatedQuiniela);
+      }
+      setEditingQuiniela(null);
+      setError(null);
+    } catch (error) {
+      console.error('Error updating quiniela:', error);
+      setError(error.message || 'Ocurrio un error al actualizar la quiniela');
+    }
+  };
+
+  const handleEditClick = (quiniela) => {
+    setEditingQuiniela({ ...quiniela });
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveEdit = async () => {
+    await updateQuiniela();
+    setIsEditModalOpen(false);
   };
 
   return (
@@ -118,7 +167,7 @@ const Quinielas = ({
         </Alert>
       )}
 
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h2 className="text-2xl font-bold">Mis Quinielas</h2>
         <Dialog>
           <DialogTrigger asChild>
@@ -126,6 +175,7 @@ const Quinielas = ({
               disabled={
                 !isPremium && quinielas.length >= maxQuinielasInFreeVersion
               }
+              className="w-full sm:w-auto"
             >
               <PlusCircle className="mr-2 h-4 w-4" />
               Crear Quiniela
@@ -173,36 +223,78 @@ const Quinielas = ({
         </Alert>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {quinielas.map((quiniela) => (
-              <Button
-                key={quiniela.id}
-                variant={
-                  activeQuiniela.id === quiniela.id ? "default" : "outline"
-                }
-                className="h-auto py-4 justify-start"
-                onClick={() => setActiveQuiniela(quiniela)}
-              >
-                <Users className="mr-2 h-4 w-4" />
-                <div className="text-left">
-                  <div>{quiniela.name}</div>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    {activeQuiniela?.description || "No description available"}
-                  </p>
-                  <div className="text-sm text-muted-foreground">
-                    {quiniela?.participants?.length || 0} participantes
+              <div key={quiniela.id} className="flex flex-col">
+                <Button
+                  variant={activeQuiniela.id === quiniela.id ? "default" : "outline"}
+                  className="h-auto py-4 justify-start w-full"
+                  onClick={() => setActiveQuiniela(quiniela)}
+                >
+                  <Users className="mr-2 h-4 w-4" />
+                  <div className="text-left">
+                    <div>{quiniela.name}</div>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      {quiniela.description || "No description available"}
+                    </p>
+                    <div className="text-sm text-muted-foreground">
+                      {quiniela?.participants?.length || 0} participantes
+                    </div>
                   </div>
-                </div>
-              </Button>
+                </Button>
+                <Button
+                  variant="outline"
+                  className="mt-2"
+                  onClick={() => handleEditClick(quiniela)}
+                >
+                  Editar
+                </Button>
+              </div>
             ))}
           </div>
+
+          {/* Edit Quiniela Modal */}
+          <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Edit Quiniela</DialogTitle>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <label htmlFor="edit-name" className="text-right">
+                    Nombre
+                  </label>
+                  <Input
+                    id="edit-name"
+                    className="col-span-3"
+                    value={editingQuiniela?.name || ''}
+                    onChange={(e) => setEditingQuiniela({ ...editingQuiniela, name: e.target.value })}
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <label htmlFor="edit-description" className="text-right">
+                    Descripción
+                  </label>
+                  <Textarea
+                    id="edit-description"
+                    className="col-span-3"
+                    value={editingQuiniela?.description || ''}
+                    onChange={(e) => setEditingQuiniela({ ...editingQuiniela, description: e.target.value })}
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button onClick={handleSaveEdit}>Guardar cambios</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
 
           {activeQuiniela && (
             <div className="mt-8">
               <h3 className="text-xl font-semibold mb-4">
                 Participantes de {activeQuiniela?.name}
               </h3>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {activeQuiniela?.participants?.map((participant, index) => (
                   <div key={index} className="flex items-center space-x-2">
                     <Avatar>

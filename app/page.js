@@ -218,7 +218,7 @@ export default function Home() {
                 </div>
               </TabsContent>
               <TabsContent value="profile">
-                <ProfileForm initialProfile={userProfile} />
+                <ProfileForm initialProfile={userProfile.user} />
               </TabsContent>
               {/* <TabsContent value="credits">
                 <h3 className="text-xl font-semibold mb-4">
