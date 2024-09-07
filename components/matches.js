@@ -10,7 +10,6 @@ export function Matches() {
     async function fetchData() {
       try {
         const data = await fetchMatches();
-        console.log(data);
         setMatches(data);
       } catch (error) {
         console.error("Error fetching data:", error);

@@ -38,7 +38,8 @@ const Quinielas = ({
       setLoading(true);
       const { data, error } = await supabase
         .from('quinielas')
-        .select('*');
+        .select('*')
+        .eq('owner_id', userProfile.id);
       
       if (error) throw error;
       
@@ -96,30 +97,34 @@ const Quinielas = ({
       supabase = getSupabase();
     }
     try {
+      if (!session && !userProfile) throw new Error("User not authenticated");
+
       if (!editingQuiniela) {
         throw new Error("No se ha seleccionado ninguna quiniela para editar");
       }
 
       const { data, error } = await supabase
-        .from('quinielas')
+        .from("quinielas")
         .update({
           name: editingQuiniela.name,
-          description: editingQuiniela.description
+          description: editingQuiniela.description,
         })
-        .eq('id', editingQuiniela.id)
-        .select();
+        .eq("id", editingQuiniela.id);
 
       if (error) throw error;
 
-      if (data && data.length > 0) {
-        setQuinielas(quinielas.map(q => q.id === data[0].id ? data[0] : q));
-        setActiveQuiniela(data[0]);
-      } else {
-        // If no data is returned, update the local state with the edited values
-        const updatedQuiniela = { ...editingQuiniela };
-        setQuinielas(quinielas.map(q => q.id === updatedQuiniela.id ? updatedQuiniela : q));
-        setActiveQuiniela(updatedQuiniela);
-      }
+      // Fetch the updated quiniela
+      const { data: updatedQuiniela, error: fetchError } = await supabase
+        .from("quinielas")
+        .select()
+        .eq("id", editingQuiniela.id)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      // Update local state
+      setQuinielas(quinielas.map(q => q.id === updatedQuiniela.id ? updatedQuiniela : q));
+      setActiveQuiniela(updatedQuiniela);
       setEditingQuiniela(null);
       setError(null);
     } catch (error) {

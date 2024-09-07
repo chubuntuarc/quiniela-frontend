@@ -132,16 +132,16 @@ export default function Home() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Avatar className="cursor-pointer">
-                {userProfile.profilePicture ? (
+                {userProfile.user.profilePicture ? (
                   <AvatarImage
-                    src={userProfile.user_metadata.avatar_url}
-                    alt={userProfile.name}
+                    src={userProfile.user.user_metadata.avatar_url}
+                    alt={userProfile.user.name}
                   />
                 ) : (
                   <AvatarFallback
                     style={{ color: "black", backgroundColor: "white" }}
                   >
-                    {userProfile?.user_metadata?.name?.charAt(0).toUpperCase()}
+                    {userProfile?.user?.user_metadata?.name?.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 )}
               </Avatar>
@@ -246,11 +246,11 @@ export default function Home() {
             onValueChange={setActiveTab}
             className="w-full"
           >
-            <TabsList className="w-full justify-start">
-              <TabsTrigger value="standings">Tabla de Posiciones</TabsTrigger>
-              <TabsTrigger value="live">Juegos de la jornada</TabsTrigger>
-              <TabsTrigger value="participants">Participantes</TabsTrigger>
-              <TabsTrigger value="quinielas">Quinielas</TabsTrigger>
+            <TabsList className="w-full flex flex-wrap justify-start gap-2">
+              <TabsTrigger value="standings" className="flex-grow basis-auto">Tabla</TabsTrigger>
+              <TabsTrigger value="live" className="flex-grow basis-auto">Juegos</TabsTrigger>
+              <TabsTrigger value="participants" className="flex-grow basis-auto">Participantes</TabsTrigger>
+              <TabsTrigger value="quinielas" className="flex-grow basis-auto">Quinielas</TabsTrigger>
             </TabsList>
 
             <TabsContent value="live">
@@ -291,7 +291,7 @@ export default function Home() {
                 quinielas={quinielas} 
                 activeQuiniela={activeQuiniela} 
                 setActiveQuiniela={setActiveQuiniela} 
-                userProfile={userProfile}
+                userProfile={userProfile.user}
               />
             </TabsContent>
             <TabsContent value="standings">
