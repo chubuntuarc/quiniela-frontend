@@ -35,7 +35,6 @@ import { Matches } from '../components/matches';
 import ProfileForm from '../components/profile';
 import Quinielas from '../components/quinielas';
 import { useSearchParams } from 'next/navigation';
-import { createCheckoutSession } from "@/lib/mercadopago";
 
 const teams = [
   { name: "América", logo: "/placeholder.svg?height=32&width=32" },
@@ -91,21 +90,25 @@ function HomeContent() {
   const plans = [
     {
       name: "Básico",
+      code: "aqpb",
       price: "Gratis",
       features: ["1 quiniela", "5 amigos", "Publicidad"],
     },
     {
       name: "Libre",
+      code: "aqpl",
       price: "$29",
       features: ["Plan Básico", "Sin publicidad"],
     },
     {
       name: "Pro",
+      code: "aqpp",
       price: "Próximamente",
       features: ["Quinielas ilimitadas", "Amigos ilimitados", "Sin publicidad"],
     },
     {
       name: "Premium",
+      code: "aqpr",
       price: "Próximamente",
       features: [
         "Todo en Pro",
@@ -132,8 +135,30 @@ function HomeContent() {
         }
         
       }
+      
+      let userPlan = null;
+      const { data, error: userPlanError } = await supabase
+        .from("user_plan")
+        .select("plan_code")
+        .eq("user_id", session.session.user.id)
+        .single();
+
+      if (data) {
+        userPlan = data;
+      } else if (userPlanError && userPlanError.code === 'PGRST116') {
+        console.log("No user plan found, using default");
+        userPlan = { plan_code: "aqpb" }; // Set a default plan
+      } else if (userPlanError) {
+        console.error("Error fetching user plan:", userPlanError);
+      }
+
+      if (userPlan) {
+        console.log("userPlan", userPlan);
+        setIsPremium(userPlan.plan_code);
+      }
 
       checkInviteCode(session.session);
+      checkPlanCode(session.session);
       setLoading(false);
     };
     
@@ -180,8 +205,41 @@ function HomeContent() {
       const inviteCode = searchParams.get('invite');
       if (inviteCode && session) {
         await handleInviteCode(inviteCode, session.user.id);
-      } else {
-        console.log("Código de invitación invalido o problema con la sesión");
+      }
+    };
+    
+    const checkPlanCode = async (session) => {
+      for (const [key, value] of searchParams.entries()) {
+        console.log(`${key}: ${value}`);
+      }
+      const planCode = searchParams.get("sp");
+      if (planCode && session) {
+        if (planCode === "aqpl") {
+          try {
+            let result;
+            if (isPremium) {
+              // Update existing record
+              result = await supabase
+                .from("user_plan")
+                .update({ plan_code: planCode })
+                .eq("user_id", session.user.id);
+            } else {
+              // Insert new record
+              result = await supabase
+                .from("user_plan")
+                .insert({ user_id: session.user.id, plan_code: planCode });
+            }
+
+            if (result.error) {
+              throw result.error;
+            }
+
+            console.log("Plan updated successfully");
+            window.location.href = "/";
+          } catch (error) {
+            console.error("Error updating user plan:", error);
+          }
+        }
       }
     };
 
@@ -214,12 +272,18 @@ function HomeContent() {
   };
 
   const handleSubscription = async (planName) => {
+    const planUrls = {
+      Libre:
+        "https://www.mercadopago.com.mx/subscriptions/checkout?preapproval_plan_id=2c93808491d6d45e0191de25a6d8033f",
+      Pro: "YOUR_PRO_PLAN_ID",
+      Premium: "YOUR_PREMIUM_PLAN_ID",
+    };
     if (planName === "Básico") return; // No action for the current plan
     
     setLoadingPlan(planName);
     try {
-      const checkoutUrl = await createCheckoutSession(planName, userProfile.user.email);
-      window.location.href = checkoutUrl;
+      const url = planUrls[planName];
+      window.location.href = url;
     } catch (error) {
       console.error("Error creating checkout session:", error);
       // Handle error (e.g., show an error message to the user)
@@ -335,12 +399,12 @@ function HomeContent() {
                         <Button 
                           className="w-full" 
                           onClick={() => handleSubscription(plan.name)}
-                          disabled={plan.name === "Básico" || loadingPlan === plan.name}
+                          disabled={plan.code === isPremium || loadingPlan === plan.name}
                         >
                           {loadingPlan === plan.name ? (
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                           ) : null}
-                          {plan.name === "Básico"
+                          {plan.code === isPremium
                             ? "Plan Actual"
                             : `Cambiar a ${plan.name}`}
                         </Button>
