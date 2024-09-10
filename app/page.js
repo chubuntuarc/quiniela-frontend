@@ -35,6 +35,7 @@ import { StandingsTable } from '../components/standings';
 import { Matches } from '../components/matches';
 import ProfileForm from '../components/profile';
 import Quinielas from '../components/quinielas';
+import { useSearchParams } from 'next/navigation';
 
 const teams = [
   { name: "América", logo: "/placeholder.svg?height=32&width=32" },
@@ -75,6 +76,8 @@ export default function Home() {
   let supabase = null;
   const maxFriendsInFreeVersion = 5;
   const maxQuinielasInFreeVersion = 1;
+  const searchParams = useSearchParams();
+  const [alertMessage, setAlertMessage] = useState(null);
 
   const plans = [
     { name: "Básico", price: "Gratis", features: ["1 quiniela", "5 amigos", "Publicidad"] },
@@ -99,8 +102,57 @@ export default function Home() {
         }
         
       }
-      
+
+      checkInviteCode(session.session);
       setLoading(false);
+    };
+    
+    const handleInviteCode = async (inviteCode, userId) => {
+      if (!supabase) {
+        supabase = getSupabase();
+      }
+
+      try {
+        // Search for the quiniela with the given invite code
+        const { data: quiniela, error: quiniela_error } = await supabase
+          .from("quinielas")
+          .select("id")
+          .eq("unique_code", inviteCode)
+          .single();
+
+        if (quiniela_error) throw quiniela_error;
+
+        if (quiniela) {
+          // Add the user to the user_quinielas table
+          const { error: insert_error } = await supabase
+            .from("user_quinielas")
+            .insert({ user_id: userId, quiniela_id: quiniela.id });
+
+          if (insert_error) throw insert_error;
+
+          // Set alert message for successful join
+          setAlertMessage("Successfully joined quiniela");
+        } else {
+          // Set alert message for invalid invite code
+          setAlertMessage("Invalid invite code");
+        }
+      } catch (error) {
+        console.error("Error processing invite code:", error);
+        // Set alert message for error
+        setAlertMessage("Error joining quiniela. Please try again.");
+      }
+    };
+
+    const checkInviteCode = async (session) => {
+      for (const [key, value] of searchParams.entries()) {
+        console.log(`${key}: ${value}`);
+      }
+      const inviteCode = searchParams.get('invite');
+      if (inviteCode && session) {
+        await handleInviteCode(inviteCode, session.user.id);
+      } else {
+        console.log("Código de invitación invalido o problema con la sesión");
+      }
     };
 
     checkSession();
@@ -131,6 +183,8 @@ export default function Home() {
     }
   };
 
+  
+
   return (
     <div className="flex flex-col h-screen">
       {/* Navbar */}
@@ -154,7 +208,9 @@ export default function Home() {
                   <AvatarFallback
                     style={{ color: "black", backgroundColor: "white" }}
                   >
-                    {userProfile?.user?.user_metadata?.name?.charAt(0).toUpperCase()}
+                    {userProfile?.user?.user_metadata?.name
+                      ?.charAt(0)
+                      .toUpperCase()}
                   </AvatarFallback>
                 )}
               </Avatar>
@@ -180,6 +236,19 @@ export default function Home() {
           </DropdownMenu>
         </div>
       </nav>
+
+      {/* Alert message */}
+      {alertMessage && (
+        <div className="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-4" role="alert">
+          <p>{alertMessage}</p>
+          <button 
+            className="float-right font-bold"
+            onClick={() => setAlertMessage(null)}
+          >
+            &times;
+          </button>
+        </div>
+      )}
 
       {/* Main content */}
       <main className="flex-grow p-4 overflow-auto">
@@ -260,10 +329,21 @@ export default function Home() {
             className="w-full"
           >
             <TabsList className="w-full flex flex-wrap justify-start gap-2">
-              <TabsTrigger value="standings" className="flex-grow basis-auto">Tabla</TabsTrigger>
-              <TabsTrigger value="live" className="flex-grow basis-auto">Juegos</TabsTrigger>
-              <TabsTrigger value="participants" className="flex-grow basis-auto">Participantes</TabsTrigger>
-              <TabsTrigger value="quinielas" className="flex-grow basis-auto">Quinielas</TabsTrigger>
+              <TabsTrigger value="standings" className="flex-grow basis-auto">
+                Tabla
+              </TabsTrigger>
+              <TabsTrigger value="live" className="flex-grow basis-auto">
+                Juegos
+              </TabsTrigger>
+              <TabsTrigger
+                value="participants"
+                className="flex-grow basis-auto"
+              >
+                Participantes
+              </TabsTrigger>
+              <TabsTrigger value="quinielas" className="flex-grow basis-auto">
+                Quinielas
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="live">
@@ -296,15 +376,16 @@ export default function Home() {
               </table>
             </TabsContent>
             <TabsContent value="quinielas">
-              <Quinielas 
-                isPremium={isPremium} 
-                maxFriendsInFreeVersion={maxFriendsInFreeVersion} 
-                maxQuinielasInFreeVersion={maxQuinielasInFreeVersion} 
-                setIsPremium={setIsPremium} 
-                quinielas={quinielas} 
-                activeQuiniela={activeQuiniela} 
-                setActiveQuiniela={setActiveQuiniela} 
+              <Quinielas
+                isPremium={isPremium}
+                maxFriendsInFreeVersion={maxFriendsInFreeVersion}
+                maxQuinielasInFreeVersion={maxQuinielasInFreeVersion}
+                setIsPremium={setIsPremium}
+                quinielas={quinielas}
+                activeQuiniela={activeQuiniela}
+                setActiveQuiniela={setActiveQuiniela}
                 userProfile={userProfile.user}
+                setShowSettings={setShowSettings}
               />
             </TabsContent>
             <TabsContent value="standings">

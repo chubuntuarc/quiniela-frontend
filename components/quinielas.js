@@ -9,19 +9,20 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 
-const Quinielas = ({ 
-  isPremium, 
-  maxFriendsInFreeVersion, 
-  maxQuinielasInFreeVersion, 
+const Quinielas = ({
+  isPremium,
+  maxFriendsInFreeVersion,
+  maxQuinielasInFreeVersion,
   setIsPremium,
   session,
-  userProfile
+  userProfile,
+  setShowSettings,
 }) => {
   const [quinielas, setQuinielas] = useState([]);
   const [activeQuiniela, setActiveQuiniela] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [newQuinielaName, setNewQuinielaName] = useState('');
-  const [newQuinielaDescription, setNewQuinielaDescription] = useState('');
+  const [newQuinielaName, setNewQuinielaName] = useState("");
+  const [newQuinielaDescription, setNewQuinielaDescription] = useState("");
   const [error, setError] = useState(null);
   let supabase = null;
   const [editingQuiniela, setEditingQuiniela] = useState(null);
@@ -29,8 +30,8 @@ const Quinielas = ({
   const [deletingQuinielaId, setDeletingQuinielaId] = useState(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
-  const [inviteEmail, setInviteEmail] = useState('');
-  const [inviteUrl, setInviteUrl] = useState('');
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteUrl, setInviteUrl] = useState("");
   const [successMessage, setSuccessMessage] = useState(null);
 
   useEffect(() => {
@@ -43,31 +44,31 @@ const Quinielas = ({
     }
     try {
       setLoading(true);
-      
+
       // First, get the quiniela IDs from user_quinielas
       const { data: userQuinielas, error: userQuinielasError } = await supabase
-        .from('user_quinielas')
-        .select('quiniela_id')
-        .eq('user_id', userProfile.id);
-      
+        .from("user_quinielas")
+        .select("quiniela_id")
+        .eq("user_id", userProfile.id);
+
       if (userQuinielasError) throw userQuinielasError;
-      
-      const quinielaIds = userQuinielas.map(uq => uq.quiniela_id);
-      
+
+      const quinielaIds = userQuinielas.map((uq) => uq.quiniela_id);
+
       // Then, fetch the quinielas using these IDs
       const { data, error } = await supabase
-        .from('quinielas')
-        .select('*')
-        .in('id', quinielaIds);
-      
+        .from("quinielas")
+        .select("*")
+        .in("id", quinielaIds);
+
       if (error) throw error;
-      
+
       setQuinielas(data);
       if (data.length > 0) {
         setActiveQuiniela(data[0]);
       }
     } catch (error) {
-      console.error('Error fetching quinielas:', error);
+      console.error("Error fetching quinielas:", error);
     } finally {
       setLoading(false);
     }
@@ -80,10 +81,12 @@ const Quinielas = ({
       }
 
       if (!session && !userProfile) throw new Error("User not authenticated");
-      
+
       const currentDate = new Date().toISOString();
-      const endDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
-      
+      const endDate = new Date(
+        Date.now() + 7 * 24 * 60 * 60 * 1000
+      ).toISOString();
+
       // Generate a unique 8-character code
       let uniqueCode;
       let isUnique = false;
@@ -93,13 +96,13 @@ const Quinielas = ({
           .from("quinielas")
           .select("unique_code")
           .eq("unique_code", uniqueCode);
-        
+
         if (error) throw error;
         if (data.length === 0) isUnique = true;
       }
-      
+
       const { data, error } = await supabase
-        .from('quinielas')
+        .from("quinielas")
         .insert([
           {
             name: newQuinielaName,
@@ -108,7 +111,7 @@ const Quinielas = ({
             unique_code: uniqueCode,
             start_date: currentDate,
             end_date: endDate,
-          }
+          },
         ])
         .select();
 
@@ -116,25 +119,27 @@ const Quinielas = ({
 
       // Add entry to user_quinielas
       const { error: userQuinielaError } = await supabase
-        .from('user_quinielas')
+        .from("user_quinielas")
         .insert([
           {
             user_id: userProfile.id,
-            quiniela_id: data[0].id
-          }
+            quiniela_id: data[0].id,
+          },
         ]);
 
       if (userQuinielaError) throw userQuinielaError;
 
       setQuinielas([...quinielas, data[0]]);
       setActiveQuiniela(data[0]);
-      setNewQuinielaName('');
-      setNewQuinielaDescription('');
+      setNewQuinielaName("");
+      setNewQuinielaDescription("");
       setError(null); // Clear any previous errors
       setIsCreateModalOpen(false); // Close the dialog
     } catch (error) {
-      console.error('Error creating quiniela:', error);
-      setError(error.message || 'An error occurred while creating the quiniela');
+      console.error("Error creating quiniela:", error);
+      setError(
+        error.message || "An error occurred while creating the quiniela"
+      );
     }
   };
 
@@ -169,13 +174,17 @@ const Quinielas = ({
       if (fetchError) throw fetchError;
 
       // Update local state
-      setQuinielas(quinielas.map(q => q.id === updatedQuiniela.id ? updatedQuiniela : q));
+      setQuinielas(
+        quinielas.map((q) =>
+          q.id === updatedQuiniela.id ? updatedQuiniela : q
+        )
+      );
       setActiveQuiniela(updatedQuiniela);
       setEditingQuiniela(null);
       setError(null);
     } catch (error) {
-      console.error('Error updating quiniela:', error);
-      setError(error.message || 'Ocurrio un error al actualizar la quiniela');
+      console.error("Error updating quiniela:", error);
+      setError(error.message || "Ocurrio un error al actualizar la quiniela");
     }
   };
 
@@ -203,14 +212,14 @@ const Quinielas = ({
       if (error) throw error;
 
       // Update local state
-      setQuinielas(quinielas.filter(q => q.id !== quinielaId));
+      setQuinielas(quinielas.filter((q) => q.id !== quinielaId));
       if (activeQuiniela && activeQuiniela.id === quinielaId) {
         setActiveQuiniela(quinielas[0] || null);
       }
       setError(null);
     } catch (error) {
-      console.error('Error deleting quiniela:', error);
-      setError(error.message || 'Ocurrió un error al eliminar la quiniela');
+      console.error("Error deleting quiniela:", error);
+      setError(error.message || "Ocurrió un error al eliminar la quiniela");
     }
   };
 
@@ -236,10 +245,12 @@ const Quinielas = ({
   };
 
   const inviteByWhatsApp = () => {
-    const inviteUrl = `${window.location.origin}/invite/${activeQuiniela.unique_code}`;
-    const message = encodeURIComponent(`¡Te invito a unirte a mi quiniela "${activeQuiniela.name}"! Haz clic en este enlace para participar: ${inviteUrl}`);
+    const inviteUrl = `${window.location.origin}?invite=${activeQuiniela.unique_code}`;
+    const message = encodeURIComponent(
+      `¡Te invito a unirte a mi quiniela "${activeQuiniela.name}"! Haz clic en este enlace para participar: ${inviteUrl}`
+    );
     const whatsappUrl = `https://wa.me/?text=${message}`;
-    window.open(whatsappUrl, '_blank');
+    window.open(whatsappUrl, "_blank");
   };
 
   const handleInviteByEmail = async () => {
@@ -247,17 +258,31 @@ const Quinielas = ({
     // This is a placeholder function
     console.log(`Inviting ${inviteEmail} to quiniela ${activeQuiniela.id}`);
     setSuccessMessage(`Se ha enviado una invitación a ${inviteEmail}`);
-    setInviteEmail('');
+    setInviteEmail("");
   };
 
   const copyInviteUrl = () => {
     navigator.clipboard.writeText(inviteUrl);
-    setSuccessMessage("El enlace de invitación ha sido copiado al portapapeles");
+    setSuccessMessage(
+      "El enlace de invitación ha sido copiado al portapapeles"
+    );
   };
 
   const copyQuinielaCode = () => {
     navigator.clipboard.writeText(activeQuiniela.unique_code);
-    setSuccessMessage("El código de la quiniela ha sido copiado al portapapeles");
+    setSuccessMessage(
+      "El código de la quiniela ha sido copiado al portapapeles"
+    );
+
+    // Set a timeout to clear the success message after 5 seconds
+    setTimeout(() => {
+      setSuccessMessage(null);
+    }, 5000);
+  };
+
+  const handleCreateQuiniela = () => {
+    console.log("handleCreateQuiniela");
+    setIsCreateModalOpen(true);
   };
 
   return (
@@ -289,7 +314,7 @@ const Quinielas = ({
             <Button
               variant="link"
               className="p-0 h-auto font-normal text-primary"
-              onClick={() => setIsPremium(true)}
+              onClick={() => setShowSettings(true)}
             >
               Suscríbete para obtener funciones ilimitadas
             </Button>
@@ -299,49 +324,19 @@ const Quinielas = ({
 
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h2 className="text-2xl font-bold">Mis Quinielas</h2>
-        <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
-          <DialogTrigger asChild>
-            <Button
-              disabled={
-                !isPremium && quinielas.length >= maxQuinielasInFreeVersion
-              }
-              className="w-full sm:w-auto"
-            >
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Crear Quiniela
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Crear Nueva Quiniela</DialogTitle>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <label htmlFor="name" className="text-right">
-                  Nombre
-                </label>
-                <input
-                  id="name"
-                  className="col-span-3 p-2 border rounded"
-                  value={newQuinielaName}
-                  onChange={(e) => setNewQuinielaName(e.target.value)}
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <label htmlFor="description" className="text-right">
-                  Descripción
-                </label>
-                <textarea
-                  id="description"
-                  className="col-span-3 p-2 border rounded"
-                  value={newQuinielaDescription}
-                  onChange={(e) => setNewQuinielaDescription(e.target.value)}
-                />
-              </div>
-            </div>
-            <Button onClick={createQuiniela}>Crear Quiniela</Button>
-          </DialogContent>
-        </Dialog>
+        {isPremium ||
+        quinielas.filter((q) => q.owner_id === userProfile.id).length === 0 ? (
+          <Button
+            disabled={
+              !isPremium && quinielas.length >= maxQuinielasInFreeVersion
+            }
+            className="w-full sm:w-auto"
+            onClick={handleCreateQuiniela}
+          >
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Crear Quiniela
+          </Button>
+        ) : null}
       </div>
 
       {quinielas.length === 0 ? (
@@ -478,9 +473,7 @@ const Quinielas = ({
             <div className="mt-8">
               <div className="flex justify-between items-center mb-4">
                 <div className="flex items-center">
-                  <h3 className="text-xl font-semibold">
-                    Participantes
-                  </h3>
+                  <h3 className="text-xl font-semibold">Participantes</h3>
                   <div className="ml-4 flex items-center">
                     <p className="text-sm text-muted-foreground mr-2">
                       Código: {activeQuiniela.unique_code}
@@ -568,6 +561,42 @@ const Quinielas = ({
           )}
         </>
       )}
+
+      {/* Create Quiniela Modal */}
+      <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Crear Nueva Quiniela</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="new-name" className="text-right">
+                Nombre
+              </Label>
+              <Input
+                id="new-name"
+                className="col-span-3"
+                value={newQuinielaName}
+                onChange={(e) => setNewQuinielaName(e.target.value)}
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="new-description" className="text-right">
+                Descripción
+              </Label>
+              <Textarea
+                id="new-description"
+                className="col-span-3"
+                value={newQuinielaDescription}
+                onChange={(e) => setNewQuinielaDescription(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button onClick={createQuiniela}>Crear Quiniela</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

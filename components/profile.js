@@ -10,9 +10,9 @@ function ProfileForm({ initialProfile, onSubmit }) {
     name: initialProfile?.user_metadata?.name || '',
     email: initialProfile?.email || '',
     username: initialProfile?.user_metadata?.id || '',
-    phone: initialProfile.phone || '',
-    created_at: initialProfile.user_metadata.created_at || '',
-    profileImage: initialProfile.identities[0].identity_data.profile_picture || '',
+    phone: initialProfile?.phone || '',
+    created_at: initialProfile?.user_metadata?.created_at || '',
+    profileImage: initialProfile?.identities[0]?.identity_data?.profile_picture || '',
     password: '',
     confirmPassword: '',
   });
