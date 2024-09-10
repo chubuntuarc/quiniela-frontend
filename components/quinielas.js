@@ -507,27 +507,30 @@ const Quinielas = ({
             </DialogContent>
           </Dialog>
 
-          {activeQuiniela && activeQuiniela.owner_id === userProfile.id && (
-            <div className="mt-8">
-              <Dialog
-                open={isInviteModalOpen}
-                onOpenChange={setIsInviteModalOpen}
-              >
-                <DialogTrigger asChild>
-                  <Button variant="outline">
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Invitar Participantes
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Invitar Participantes</DialogTitle>
-                    <DialogDescription>
-                      Código: {activeQuiniela.unique_code}
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="grid gap-4 py-4">
-                    {/* <div className="grid grid-cols-4 items-center gap-4">
+          {activeQuiniela &&
+            activeQuiniela.owner_id === userProfile.id &&
+            (isPremium ||
+              activeQuiniela.participants <= maxFriendsInFreeVersion) && (
+              <div className="mt-8">
+                <Dialog
+                  open={isInviteModalOpen}
+                  onOpenChange={setIsInviteModalOpen}
+                >
+                  <DialogTrigger asChild>
+                    <Button variant="outline">
+                      <PlusCircle className="mr-2 h-4 w-4" />
+                      Invitar Participantes
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Invitar Participantes</DialogTitle>
+                      <DialogDescription>
+                        Código: {activeQuiniela.unique_code}
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      {/* <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="invite-email" className="text-right">
                           Email
                         </Label>
@@ -542,13 +545,13 @@ const Quinielas = ({
                       <Button onClick={handleInviteByEmail}>
                         Enviar Invitación
                       </Button> */}
-                    <Button onClick={inviteByWhatsApp}>
-                      Invitar por WhatsApp
-                    </Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
-              {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                      <Button onClick={inviteByWhatsApp}>
+                        Invitar por WhatsApp
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+                {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {participants.map((participant) => (
                   <div key={participant.id} className="flex items-center space-x-2">
                     <Avatar>
@@ -558,7 +561,7 @@ const Quinielas = ({
                   </div>
                 ))}
               </div> */}
-              {/* {!isPremium &&
+                {/* {!isPremium &&
                 participants.length >=
                   maxFriendsInFreeVersion && (
                   <Alert className="mt-4">
@@ -577,8 +580,8 @@ const Quinielas = ({
                     </AlertDescription>
                   </Alert>
                 )} */}
-            </div>
-          )}
+              </div>
+            )}
         </>
       )}
 
