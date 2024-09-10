@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { AlertTriangle, PlusCircle, Users, AlertCircle, Trash2, CheckCircle2 } from "lucide-react";
+import { AlertTriangle, PlusCircle, Users, AlertCircle, Trash2, CheckCircle2, Copy } from "lucide-react";
 import { getSupabase } from '@/lib/supabaseClient';
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -82,8 +82,21 @@ const Quinielas = ({
       if (!session && !userProfile) throw new Error("User not authenticated");
       
       const currentDate = new Date().toISOString();
-      // Set end_date to 7 days from now as a default
       const endDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+      
+      // Generate a unique 8-character code
+      let uniqueCode;
+      let isUnique = false;
+      while (!isUnique) {
+        uniqueCode = Math.random().toString(36).substring(2, 10).toUpperCase();
+        const { data, error } = await supabase
+          .from("quinielas")
+          .select("unique_code")
+          .eq("unique_code", uniqueCode);
+        
+        if (error) throw error;
+        if (data.length === 0) isUnique = true;
+      }
       
       const { data, error } = await supabase
         .from('quinielas')
@@ -92,6 +105,7 @@ const Quinielas = ({
             name: newQuinielaName,
             description: newQuinielaDescription,
             owner_id: userProfile.id,
+            unique_code: uniqueCode,
             start_date: currentDate,
             end_date: endDate,
           }
@@ -222,7 +236,7 @@ const Quinielas = ({
   };
 
   const inviteByWhatsApp = () => {
-    const inviteUrl = `${window.location.origin}/invite/${activeQuiniela.id}`;
+    const inviteUrl = `${window.location.origin}/invite/${activeQuiniela.unique_code}`;
     const message = encodeURIComponent(`¡Te invito a unirte a mi quiniela "${activeQuiniela.name}"! Haz clic en este enlace para participar: ${inviteUrl}`);
     const whatsappUrl = `https://wa.me/?text=${message}`;
     window.open(whatsappUrl, '_blank');
@@ -239,6 +253,11 @@ const Quinielas = ({
   const copyInviteUrl = () => {
     navigator.clipboard.writeText(inviteUrl);
     setSuccessMessage("El enlace de invitación ha sido copiado al portapapeles");
+  };
+
+  const copyQuinielaCode = () => {
+    navigator.clipboard.writeText(activeQuiniela.unique_code);
+    setSuccessMessage("El código de la quiniela ha sido copiado al portapapeles");
   };
 
   return (
@@ -458,25 +477,44 @@ const Quinielas = ({
           {activeQuiniela && (
             <div className="mt-8">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-semibold">
-                  Participantes de {activeQuiniela?.name}
-                </h3>
-                <Dialog
-                  open={isInviteModalOpen}
-                  onOpenChange={setIsInviteModalOpen}
-                >
-                  <DialogTrigger asChild>
-                    <Button variant="outline">
-                      <PlusCircle className="mr-2 h-4 w-4" />
-                      Invitar Participantes
+                <div className="flex items-center">
+                  <h3 className="text-xl font-semibold">
+                    Participantes
+                  </h3>
+                  <div className="ml-4 flex items-center">
+                    <p className="text-sm text-muted-foreground mr-2">
+                      Código: {activeQuiniela.unique_code}
+                    </p>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={copyQuinielaCode}
+                      title="Copiar código"
+                    >
+                      <Copy className="h-4 w-4" />
                     </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Invitar Participantes</DialogTitle>
-                    </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                      <div className="grid grid-cols-4 items-center gap-4">
+                  </div>
+                </div>
+              </div>
+              <Dialog
+                open={isInviteModalOpen}
+                onOpenChange={setIsInviteModalOpen}
+              >
+                <DialogTrigger asChild>
+                  <Button variant="outline">
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Invitar Participantes
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Invitar Participantes</DialogTitle>
+                    <DialogDescription>
+                      Código: {activeQuiniela.unique_code}
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    {/* <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="invite-email" className="text-right">
                           Email
                         </Label>
@@ -490,15 +528,13 @@ const Quinielas = ({
                       </div>
                       <Button onClick={handleInviteByEmail}>
                         Enviar Invitación
-                      </Button>
-                      <div className="text-center">o</div>
-                      <Button onClick={inviteByWhatsApp}>
-                        Invitar por WhatsApp
-                      </Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              </div>
+                      </Button> */}
+                    <Button onClick={inviteByWhatsApp}>
+                      Invitar por WhatsApp
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {activeQuiniela?.participants?.map((participant, index) => (
                   <div key={index} className="flex items-center space-x-2">
