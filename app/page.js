@@ -118,6 +118,19 @@ export default function Home() {
     return <Login setSession={setSession} setUser={setUserProfile} />;
   }
 
+  const handleLogout = async () => {
+    if (!supabase) {
+      supabase = getSupabase();
+    }
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error('Error signing out:', error);
+    } else {
+      setSession(null);
+      setUserProfile(null);
+    }
+  };
+
   return (
     <div className="flex flex-col h-screen">
       {/* Navbar */}
@@ -132,7 +145,7 @@ export default function Home() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Avatar className="cursor-pointer">
-                {userProfile.user.profilePicture ? (
+                {userProfile.user?.profilePicture ? (
                   <AvatarImage
                     src={userProfile.user.user_metadata.avatar_url}
                     alt={userProfile.user.name}
@@ -159,7 +172,7 @@ export default function Home() {
                 <HelpCircle className="mr-2 h-4 w-4" />
                 <span>Ayuda</span>
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onSelect={handleLogout}>
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Cerrar sesión</span>
               </DropdownMenuItem>

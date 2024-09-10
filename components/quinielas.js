@@ -43,10 +43,22 @@ const Quinielas = ({
     }
     try {
       setLoading(true);
+      
+      // First, get the quiniela IDs from user_quinielas
+      const { data: userQuinielas, error: userQuinielasError } = await supabase
+        .from('user_quinielas')
+        .select('quiniela_id')
+        .eq('user_id', userProfile.id);
+      
+      if (userQuinielasError) throw userQuinielasError;
+      
+      const quinielaIds = userQuinielas.map(uq => uq.quiniela_id);
+      
+      // Then, fetch the quinielas using these IDs
       const { data, error } = await supabase
         .from('quinielas')
         .select('*')
-        .eq('owner_id', userProfile.id);
+        .in('id', quinielaIds);
       
       if (error) throw error;
       
@@ -87,6 +99,18 @@ const Quinielas = ({
         .select();
 
       if (error) throw error;
+
+      // Add entry to user_quinielas
+      const { error: userQuinielaError } = await supabase
+        .from('user_quinielas')
+        .insert([
+          {
+            user_id: userProfile.id,
+            quiniela_id: data[0].id
+          }
+        ]);
+
+      if (userQuinielaError) throw userQuinielaError;
 
       setQuinielas([...quinielas, data[0]]);
       setActiveQuiniela(data[0]);
@@ -148,6 +172,15 @@ const Quinielas = ({
     try {
       if (!session && !userProfile) throw new Error("User not authenticated");
 
+      // Delete from user_quinielas first
+      const { error: userQuinielaError } = await supabase
+        .from("user_quinielas")
+        .delete()
+        .eq("quiniela_id", quinielaId);
+
+      if (userQuinielaError) throw userQuinielaError;
+
+      // Then delete the quiniela itself
       const { error } = await supabase
         .from("quinielas")
         .delete()
@@ -311,9 +344,13 @@ const Quinielas = ({
                   className="h-auto py-4 justify-start w-full"
                   onClick={() => setActiveQuiniela(quiniela)}
                 >
-                  <Users className="mr-2 h-4 w-4" />
                   <div className="text-left">
-                    <div>{quiniela.name}</div>
+                    <div className="flex items-center">
+                      {quiniela.name} &nbsp;
+                      {quiniela.owner_id === userProfile.id && (
+                        <Users className="mr-2 h-4 w-4" />
+                      )}
+                    </div>
                     <p className="text-sm text-muted-foreground mb-4">
                       {quiniela.description || "No description available"}
                     </p>
@@ -322,23 +359,25 @@ const Quinielas = ({
                     </div>
                   </div>
                 </Button>
-                <div className="flex mt-2 gap-2">
-                  <Button
-                    variant="outline"
-                    className="flex-1"
-                    onClick={() => handleEditClick(quiniela)}
-                  >
-                    Editar
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    className="flex-1"
-                    onClick={() => handleDeleteClick(quiniela.id)}
-                  >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Eliminar
-                  </Button>
-                </div>
+                {quiniela.owner_id === userProfile.id && (
+                  <div className="flex mt-2 gap-2">
+                    <Button
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() => handleEditClick(quiniela)}
+                    >
+                      Editar
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      className="flex-1"
+                      onClick={() => handleDeleteClick(quiniela.id)}
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Eliminar
+                    </Button>
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -422,7 +461,10 @@ const Quinielas = ({
                 <h3 className="text-xl font-semibold">
                   Participantes de {activeQuiniela?.name}
                 </h3>
-                <Dialog open={isInviteModalOpen} onOpenChange={setIsInviteModalOpen}>
+                <Dialog
+                  open={isInviteModalOpen}
+                  onOpenChange={setIsInviteModalOpen}
+                >
                   <DialogTrigger asChild>
                     <Button variant="outline">
                       <PlusCircle className="mr-2 h-4 w-4" />
@@ -446,7 +488,9 @@ const Quinielas = ({
                           placeholder="email@example.com"
                         />
                       </div>
-                      <Button onClick={handleInviteByEmail}>Enviar Invitación</Button>
+                      <Button onClick={handleInviteByEmail}>
+                        Enviar Invitación
+                      </Button>
                       <div className="text-center">o</div>
                       <Button onClick={inviteByWhatsApp}>
                         Invitar por WhatsApp
