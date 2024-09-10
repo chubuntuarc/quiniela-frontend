@@ -36,6 +36,7 @@ import { Matches } from '../components/matches';
 import ProfileForm from '../components/profile';
 import Quinielas from '../components/quinielas';
 import { useSearchParams } from 'next/navigation';
+import { createCheckoutSession } from "@/lib/mercadopago";
 
 const teams = [
   { name: "América", logo: "/placeholder.svg?height=32&width=32" },
@@ -78,11 +79,33 @@ export default function Home() {
   const maxQuinielasInFreeVersion = 1;
   const searchParams = useSearchParams();
   const [alertMessage, setAlertMessage] = useState(null);
+  const [loadingPlan, setLoadingPlan] = useState(null);
 
   const plans = [
-    { name: "Básico", price: "Gratis", features: ["1 quiniela", "5 amigos", "Publicidad"] },
-    { name: "Pro", price: "Próximamente", features: ["Quinielas ilimitadas", "Amigos ilimitados", "Sin publicidad"] },
-    { name: "Premium", price: "Próximamente", features: ["Todo en Pro", "Estadísticas avanzadas", "Soporte prioritario"] }
+    {
+      name: "Básico",
+      price: "Gratis",
+      features: ["1 quiniela", "5 amigos", "Publicidad"],
+    },
+    {
+      name: "Libre",
+      price: "$29",
+      features: ["Plan Básico", "Sin publicidad"],
+    },
+    {
+      name: "Pro",
+      price: "Próximamente",
+      features: ["Quinielas ilimitadas", "Amigos ilimitados", "Sin publicidad"],
+    },
+    {
+      name: "Premium",
+      price: "Próximamente",
+      features: [
+        "Todo en Pro",
+        "Estadísticas avanzadas",
+        "Soporte prioritario",
+      ],
+    },
   ];
   
   useEffect(() => {
@@ -183,7 +206,20 @@ export default function Home() {
     }
   };
 
-  
+  const handleSubscription = async (planName) => {
+    if (planName === "Básico") return; // No action for the current plan
+    
+    setLoadingPlan(planName);
+    try {
+      const checkoutUrl = await createCheckoutSession(planName, userProfile.user.email);
+      window.location.href = checkoutUrl;
+    } catch (error) {
+      console.error("Error creating checkout session:", error);
+      // Handle error (e.g., show an error message to the user)
+    } finally {
+      setLoadingPlan(null);
+    }
+  };
 
   return (
     <div className="flex flex-col h-screen">
@@ -289,7 +325,14 @@ export default function Home() {
                         </ul>
                       </CardContent>
                       <CardFooter>
-                        <Button className="w-full">
+                        <Button 
+                          className="w-full" 
+                          onClick={() => handleSubscription(plan.name)}
+                          disabled={plan.name === "Básico" || loadingPlan === plan.name}
+                        >
+                          {loadingPlan === plan.name ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          ) : null}
                           {plan.name === "Básico"
                             ? "Plan Actual"
                             : `Cambiar a ${plan.name}`}
