@@ -33,6 +33,7 @@ const Quinielas = ({
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteUrl, setInviteUrl] = useState("");
   const [successMessage, setSuccessMessage] = useState(null);
+  const [participants, setParticipants] = useState([]);
 
   useEffect(() => {
     fetchQuinielas();
@@ -63,7 +64,27 @@ const Quinielas = ({
 
       if (error) throw error;
 
-      setQuinielas(data);
+      // Fetch participants for each quiniela
+      const participantsData = await Promise.all(data.map(async (quiniela) => {
+        const { data: participants, error: participantsError } = await supabase
+          .from("user_quinielas")
+          .select("user_id")
+          .eq("quiniela_id", quiniela.id);
+
+        if (participantsError) {
+          console.error("Error fetching participants:", participantsError);
+          return { ...quiniela, participants: 0 };
+        }
+
+        const uniqueParticipants = new Set(participants.map(p => p.user_id));
+
+        return {
+          ...quiniela,
+          participants: uniqueParticipants.size
+        };
+      }));
+
+      setQuinielas(participantsData);
       if (data.length > 0) {
         setActiveQuiniela(data[0]);
       }
@@ -365,33 +386,50 @@ const Quinielas = ({
                         <Users className="mr-2 h-4 w-4" />
                       )}
                     </div>
+                    {quiniela.owner_id === userProfile.id && (
+                      <p className="text-xs text-muted-foreground mb-2">
+                        {quiniela.unique_code}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={copyQuinielaCode}
+                          title="Copiar código"
+                        >
+                          <Copy className="h-4 w-4" />
+                        </Button>
+                      </p>
+                    )}
                     <p className="text-sm text-muted-foreground mb-4">
                       {quiniela.description || "No description available"}
                     </p>
                     <div className="text-sm text-muted-foreground">
-                      {quiniela?.participants?.length || 0} participantes
+                      {quiniela.participants}{" "}
+                      {quiniela.participants === 1
+                        ? "participante"
+                        : "participantes"}
                     </div>
                   </div>
                 </Button>
-                {quiniela.owner_id === userProfile.id && (
-                  <div className="flex mt-2 gap-2">
-                    <Button
-                      variant="outline"
-                      className="flex-1"
-                      onClick={() => handleEditClick(quiniela)}
-                    >
-                      Editar
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      className="flex-1"
-                      onClick={() => handleDeleteClick(quiniela.id)}
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Eliminar
-                    </Button>
-                  </div>
-                )}
+                {quiniela.owner_id === userProfile.id &&
+                  activeQuiniela.id === quiniela.id && (
+                    <div className="flex mt-2 gap-2">
+                      <Button
+                        variant="outline"
+                        className="flex-1"
+                        onClick={() => handleEditClick(quiniela)}
+                      >
+                        Editar
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        className="flex-1"
+                        onClick={() => handleDeleteClick(quiniela.id)}
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Eliminar
+                      </Button>
+                    </div>
+                  )}
               </div>
             ))}
           </div>
@@ -469,26 +507,8 @@ const Quinielas = ({
             </DialogContent>
           </Dialog>
 
-          {activeQuiniela && (
+          {activeQuiniela && activeQuiniela.owner_id === userProfile.id && (
             <div className="mt-8">
-              <div className="flex justify-between items-center mb-4">
-                <div className="flex items-center">
-                  <h3 className="text-xl font-semibold">Participantes</h3>
-                  <div className="ml-4 flex items-center">
-                    <p className="text-sm text-muted-foreground mr-2">
-                      Código: {activeQuiniela.unique_code}
-                    </p>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={copyQuinielaCode}
-                      title="Copiar código"
-                    >
-                      <Copy className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
               <Dialog
                 open={isInviteModalOpen}
                 onOpenChange={setIsInviteModalOpen}
@@ -528,18 +548,18 @@ const Quinielas = ({
                   </div>
                 </DialogContent>
               </Dialog>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {activeQuiniela?.participants?.map((participant, index) => (
-                  <div key={index} className="flex items-center space-x-2">
+              {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {participants.map((participant) => (
+                  <div key={participant.id} className="flex items-center space-x-2">
                     <Avatar>
-                      <AvatarFallback>{participant[0]}</AvatarFallback>
+                      <AvatarFallback>{participant.name[0]}</AvatarFallback>
                     </Avatar>
-                    <span>{participant}</span>
+                    <span>{participant.name}</span>
                   </div>
                 ))}
-              </div>
-              {!isPremium &&
-                activeQuiniela?.participants?.length >=
+              </div> */}
+              {/* {!isPremium &&
+                participants.length >=
                   maxFriendsInFreeVersion && (
                   <Alert className="mt-4">
                     <AlertTriangle className="h-4 w-4" />
@@ -556,7 +576,7 @@ const Quinielas = ({
                       </Button>
                     </AlertDescription>
                   </Alert>
-                )}
+                )} */}
             </div>
           )}
         </>
