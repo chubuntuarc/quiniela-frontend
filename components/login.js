@@ -20,6 +20,7 @@ export default function Login({ setSession, setUser }) {
     if (success.success) {
       setSession(true);
       setUser(success.user);
+      window.location.reload();
     } else {
       setErrorMessage(success.error || "Revisa tu usuario y contraseña");
     }
