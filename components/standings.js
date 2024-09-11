@@ -28,55 +28,59 @@ export function StandingsTable() {
   }
 
   return (
-    <table className="w-full mt-4">
-      <thead>
-        <tr className="bg-muted">
-          <th className="p-2 text-left">Pos</th>
-          <th className="p-2 text-left">Equipo</th>
-          <th className="p-2 text-center">PJ</th>
-          <th className="p-2 text-center">PG</th>
-          <th className="p-2 text-center">PE</th>
-          <th className="p-2 text-center">PP</th>
-          <th className="p-2 text-center">GF</th>
-          <th className="p-2 text-center">GC</th>
-          <th className="p-2 text-center">DG</th>
-          <th className="p-2 text-center">Pts</th>
-        </tr>
-      </thead>
-      <tbody>
-        {teams.map((team, index) => (
-          <tr key={team.team.id} className="border-b">
-            <td className={`p-2 ${
-              index < 4 ? 'text-green-600 font-semibold' :
-              index < 12 ? 'text-orange-500 font-semibold' : ''
-            }`}>
-              {team.rank}
-            </td>
-            <td className="p-2 flex items-center">
-              {team.team.logo ? (
-                <Image
-                  src={team.team.logo}
-                  alt={team.team.name}
-                  width={24}
-                  height={24}
-                  className="mr-2"
-                />
-              ) : (
-                <div className="w-6 h-6 bg-gray-200 mr-2" />
-              )}
-              {team.team.name}
-            </td>
-            <td className="p-2 text-center">{team.all.played}</td>
-            <td className="p-2 text-center">{team.all.win}</td>
-            <td className="p-2 text-center">{team.all.draw}</td>
-            <td className="p-2 text-center">{team.all.lose}</td>
-            <td className="p-2 text-center">{team.all.goals.for}</td>
-            <td className="p-2 text-center">{team.all.goals.against}</td>
-            <td className="p-2 text-center">{team.goalsDiff}</td>
-            <td className="p-2 text-center">{team.points}</td>
+    <div className="overflow-x-auto">
+      <table className="w-full mt-2 min-w-[320px]">
+        <thead>
+          <tr className="bg-muted">
+            <th className="p-2 text-left text-xs sm:text-sm">Pos</th>
+            <th className="p-2 text-left text-xs sm:text-sm">Equipo</th>
+            <th className="p-2 text-center text-xs sm:text-sm">PJ</th>
+            <th className="p-2 text-center text-xs sm:text-sm">PG</th>
+            <th className="p-2 text-center text-xs sm:text-sm">PE</th>
+            <th className="p-2 text-center text-xs sm:text-sm">PP</th>
+            <th className="p-2 text-center text-xs sm:text-sm hidden sm:table-cell">GF</th>
+            <th className="p-2 text-center text-xs sm:text-sm hidden sm:table-cell">GC</th>
+            <th className="p-2 text-center text-xs sm:text-sm">DG</th>
+            <th className="p-2 text-center text-xs sm:text-sm">Pts</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {teams.map((team, index) => (
+            <tr key={team.team.id} className="border-b">
+              <td className={`p-1 pr-2 text-xs sm:text-sm ${
+                index < 4 ? 'text-green-600 font-semibold' :
+                index < 12 ? 'text-orange-500 font-semibold' : ''
+              }`}>
+                {team.rank}
+              </td>
+              <td className="p-1">
+                <div className="flex items-center">
+                  {team.team.logo ? (
+                    <Image
+                      src={team.team.logo}
+                      alt={team.team.name}
+                      width={16}
+                      height={16}
+                      className="mr-2 flex-shrink-0"
+                    />
+                  ) : (
+                    <div className="w-6 h-6 bg-gray-200 mr-2 flex-shrink-0" />
+                  )}
+                  <span className="truncate text-xs sm:text-sm">{team.team.name}</span>
+                </div>
+              </td>
+              <td className="p-1 text-center text-xs sm:text-sm">{team.all.played}</td>
+              <td className="p-1 text-center text-xs sm:text-sm">{team.all.win}</td>
+              <td className="p-1 text-center text-xs sm:text-sm">{team.all.draw}</td>
+              <td className="p-1 text-center text-xs sm:text-sm">{team.all.lose}</td>
+              <td className="p-1 text-center text-xs sm:text-sm hidden sm:table-cell">{team.all.goals.for}</td>
+              <td className="p-1 text-center text-xs sm:text-sm hidden sm:table-cell">{team.all.goals.against}</td>
+              <td className="p-1 text-center text-xs sm:text-sm">{team.goalsDiff}</td>
+              <td className="p-1 text-center text-xs sm:text-sm">{team.points}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
