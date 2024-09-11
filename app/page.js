@@ -35,6 +35,7 @@ import { Matches } from '../components/matches';
 import ProfileForm from '../components/profile';
 import Quinielas from '../components/quinielas';
 import { useSearchParams } from 'next/navigation';
+import AdSense from 'react-adsense';
 
 const teams = [
   { name: "América", logo: "/placeholder.svg?height=32&width=32" },
@@ -140,7 +141,7 @@ function HomeContent() {
       const { data, error: userPlanError } = await supabase
         .from("user_plan")
         .select("plan_code")
-        .eq("user_id", session.session.user.id)
+        .eq("user_id", session.session?.user.id)
         .single();
 
       if (data) {
@@ -589,11 +590,17 @@ function HomeContent() {
       )}
 
       {/* Ad banner */}
-      <div className="bg-muted p-4 text-center">
-        <p className="text-sm text-muted-foreground">
-          Espacio para anuncios integrados
-        </p>
-      </div>
+      {!isPremium && (
+        <div className="bg-muted p-4 text-center">
+          <AdSense.Google
+            client='ca-pub-XXXXXXXXXXXXXXXX' // Replace with your AdSense publisher ID
+            slot='XXXXXXXXXX' // Replace with your ad unit ID
+            style={{ display: 'block' }}
+            format='auto'
+            responsive='true'
+          />
+        </div>
+      )}
     </div>
   );
 }
