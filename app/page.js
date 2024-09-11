@@ -35,7 +35,10 @@ import { Matches } from '../components/matches';
 import ProfileForm from '../components/profile';
 import Quinielas from '../components/quinielas';
 import { useSearchParams } from 'next/navigation';
-import AdSense from 'react-adsense';
+import dynamic from 'next/dynamic';
+
+// Dynamically import AdSense component with SSR disabled
+const AdSense = dynamic(() => import('react-adsense'), { ssr: false });
 
 const teams = [
   { name: "América", logo: "/placeholder.svg?height=32&width=32" },
@@ -87,6 +90,7 @@ function HomeContent() {
   const searchParams = useSearchParams();
   const [alertMessage, setAlertMessage] = useState(null);
   const [loadingPlan, setLoadingPlan] = useState(null);
+  const [adsLoaded, setAdsLoaded] = useState(false);
 
   const plans = [
     {
@@ -246,7 +250,7 @@ function HomeContent() {
 
     checkSession();
   }, []);
-  
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -347,9 +351,12 @@ function HomeContent() {
 
       {/* Alert message */}
       {alertMessage && (
-        <div className="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-4" role="alert">
+        <div
+          className="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-4"
+          role="alert"
+        >
           <p>{alertMessage}</p>
-          <button 
+          <button
             className="float-right font-bold"
             onClick={() => setAlertMessage(null)}
           >
@@ -397,10 +404,12 @@ function HomeContent() {
                         </ul>
                       </CardContent>
                       <CardFooter>
-                        <Button 
-                          className="w-full" 
+                        <Button
+                          className="w-full"
                           onClick={() => handleSubscription(plan.name)}
-                          disabled={plan.code === isPremium || loadingPlan === plan.name}
+                          disabled={
+                            plan.code === isPremium || loadingPlan === plan.name
+                          }
                         >
                           {loadingPlan === plan.name ? (
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -590,14 +599,14 @@ function HomeContent() {
       )}
 
       {/* Ad banner */}
-      {!isPremium && (
+      {isPremium === "aqpb" && adsLoaded && (
         <div className="bg-muted p-4 text-center">
           <AdSense.Google
-            client='ca-pub-XXXXXXXXXXXXXXXX' // Replace with your AdSense publisher ID
-            slot='XXXXXXXXXX' // Replace with your ad unit ID
-            style={{ display: 'block' }}
-            format='auto'
-            responsive='true'
+            client="ca-pub-2628338664951375"
+            slot="8837953789"
+            style={{ display: "block" }}
+            format="auto"
+            responsive="true"
           />
         </div>
       )}
