@@ -36,6 +36,7 @@ import { StandingsTable } from '../components/standings';
 import { Matches } from '../components/matches';
 import ProfileForm from '../components/profile';
 import Quinielas from '../components/quinielas';
+import QuinielaForm from '../components/quinielaForm';
 import { useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 
@@ -632,81 +633,7 @@ function HomeContent() {
 
       {/* Floating bet button and modal */}
       {!showSettings && (
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button className="fixed bottom-20 right-4 rounded-full" size="lg">
-              Jugar
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Registrar Apuesta</DialogTitle>
-            </DialogHeader>
-            <div className="grid gap-4">
-              <div className="grid grid-cols-3 items-center gap-4">
-                <Image
-                  src={teams[0].logo}
-                  alt={teams[0].name}
-                  width={32}
-                  height={32}
-                />
-                <span className="text-center font-bold">vs</span>
-                <Image
-                  src={teams[1].logo}
-                  alt={teams[1].name}
-                  width={32}
-                  height={32}
-                  className="justify-self-end"
-                />
-              </div>
-              <table className="w-full">
-                <thead>
-                  <tr className="bg-muted">
-                    <th className="p-2 text-left">Resultado</th>
-                    <th className="p-2 text-center">Cuota</th>
-                    <th className="p-2 text-center">Apuesta</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="border-b">
-                    <td className="p-2">Victoria Local</td>
-                    <td className="p-2 text-center">2.5</td>
-                    <td className="p-2 text-center">
-                      <input
-                        type="number"
-                        className="w-20 p-1 border rounded"
-                        placeholder="$0"
-                      />
-                    </td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-2">Empate</td>
-                    <td className="p-2 text-center">3.2</td>
-                    <td className="p-2 text-center">
-                      <input
-                        type="number"
-                        className="w-20 p-1 border rounded"
-                        placeholder="$0"
-                      />
-                    </td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-2">Victoria Visitante</td>
-                    <td className="p-2 text-center">2.8</td>
-                    <td className="p-2 text-center">
-                      <input
-                        type="number"
-                        className="w-20 p-1 border rounded"
-                        placeholder="$0"
-                      />
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              <Button>Confirmar Apuesta</Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+        <QuinielaForm user={userProfile.user} />
       )}
 
       {isPremium === "aqpb" && <AdSlider />}
