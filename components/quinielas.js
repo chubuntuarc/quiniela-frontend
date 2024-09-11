@@ -13,7 +13,6 @@ const Quinielas = ({
   isPremium,
   maxFriendsInFreeVersion,
   maxQuinielasInFreeVersion,
-  setIsPremium,
   session,
   userProfile,
   setShowSettings,
@@ -324,7 +323,7 @@ const Quinielas = ({
         </Alert>
       )}
 
-      {!isPremium && (
+      {isPremium === "aqpb" || isPremium === "aqpl" && (
         <Alert>
           <AlertTriangle className="h-4 w-4" />
           <AlertTitle>Límites de la versión gratuita</AlertTitle>
@@ -345,11 +344,14 @@ const Quinielas = ({
 
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h2 className="text-2xl font-bold">Mis Quinielas</h2>
-        {isPremium ||
+        {isPremium === "aqpp" ||
+        isPremium === "aqpr" ||
         quinielas.filter((q) => q.owner_id === userProfile.id).length === 0 ? (
           <Button
             disabled={
-              !isPremium && quinielas.length >= maxQuinielasInFreeVersion
+              (isPremium === "aqpb" ||
+              isPremium === "aqpl") &&
+                quinielas.length >= maxQuinielasInFreeVersion
             }
             className="w-full sm:w-auto"
             onClick={handleCreateQuiniela}
@@ -509,7 +511,8 @@ const Quinielas = ({
 
           {activeQuiniela &&
             activeQuiniela.owner_id === userProfile.id &&
-            (isPremium ||
+            (isPremium === "aqpp" ||
+              isPremium === "aqpr" ||
               activeQuiniela.participants <= maxFriendsInFreeVersion) && (
               <div className="mt-8">
                 <Dialog

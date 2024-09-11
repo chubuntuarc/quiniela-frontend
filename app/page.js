@@ -158,7 +158,6 @@ function HomeContent() {
       }
 
       if (userPlan) {
-        console.log("userPlan", userPlan);
         setIsPremium(userPlan.plan_code);
       }
 
@@ -297,13 +296,22 @@ function HomeContent() {
     }
   };
 
+  const planLabels = {
+    aqpb: "Plan Básico",
+    aqpl: "Plan Libre",
+    aqpp: "Plan Pro",
+    aqpr: "Plan Premium"
+  };
+
   return (
     <div className="flex flex-col h-screen">
       {/* Navbar */}
       <nav className="bg-primary text-primary-foreground p-4 flex justify-between items-center">
-        <div className="flex items-center space-x-4">
-          <Eclipse className="h-6 w-6" />
-          <h1 className="text-xl font-bold font-poppins">Astro Quinielas</h1>
+        <div className="flex flex-col items-start">
+          <div className="flex items-center space-x-4">
+            <Eclipse className="h-6 w-6" />
+            <h1 className="text-xl font-bold font-poppins">Astro Quinielas</h1>
+          </div>
         </div>
         <div className="flex items-center space-x-4">
           {/* <span className="hidden md:inline">Créditos: $1000</span> */}
@@ -348,6 +356,12 @@ function HomeContent() {
           </DropdownMenu>
         </div>
       </nav>
+
+      {isPremium && planLabels[isPremium] && (
+        <span className="text-xs text-center bg-secondary text-secondary-foreground px-2 py-1">
+          {planLabels[isPremium]}
+        </span>
+      )}
 
       {/* Alert message */}
       {alertMessage && (
@@ -453,10 +467,16 @@ function HomeContent() {
             className="w-full"
           >
             <TabsList className="w-full flex flex-wrap justify-start gap-2">
-              <TabsTrigger value="standings" className="flex-grow basis-auto text-xs sm:text-sm">
+              <TabsTrigger
+                value="standings"
+                className="flex-grow basis-auto text-xs sm:text-sm"
+              >
                 Tabla
               </TabsTrigger>
-              <TabsTrigger value="live" className="flex-grow basis-auto text-xs sm:text-sm">
+              <TabsTrigger
+                value="live"
+                className="flex-grow basis-auto text-xs sm:text-sm"
+              >
                 Juegos
               </TabsTrigger>
               <TabsTrigger
@@ -465,7 +485,10 @@ function HomeContent() {
               >
                 Participantes
               </TabsTrigger>
-              <TabsTrigger value="quinielas" className="flex-grow basis-auto text-xs sm:text-sm">
+              <TabsTrigger
+                value="quinielas"
+                className="flex-grow basis-auto text-xs sm:text-sm"
+              >
                 Quinielas
               </TabsTrigger>
             </TabsList>
