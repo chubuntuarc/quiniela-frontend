@@ -27,6 +27,8 @@ import {
   LogOut,
   Eclipse,
   Loader2,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import Image from "next/image";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -304,6 +306,79 @@ function HomeContent() {
     aqpr: "Plan Premium"
   };
 
+  const AdSlider = () => {
+    const [currentSlide, setCurrentSlide] = useState(0);
+    const slides = [
+      {
+        content: (
+          <>
+            <span>
+              Suscríbete a premium para tener acceso completo,
+            </span>
+            <span>sin anuncios y con soporte priorizado 🎉</span>
+          </>
+        ),
+        action: () => setShowSettings(true),
+      },
+      {
+        content: (
+          <>
+            <span>20% de Descuento en tu web hosting con Hostinger,</span>
+            <span>
+              con el código <span className="font-bold">1JESUS469</span>.
+            </span>
+          </>
+        ),
+        action: () =>
+          window.open("https://hostinger.com?REFERRALCODE=1JESUS469", "_blank"),
+      },
+    ];
+
+    useEffect(() => {
+      const timer = setInterval(() => {
+        setCurrentSlide((prevSlide) => (prevSlide + 1) % slides.length);
+      }, 10000); // Change slide every 5 seconds
+
+      return () => clearInterval(timer);
+    }, []);
+
+    const nextSlide = () => setCurrentSlide((prevSlide) => (prevSlide + 1) % slides.length);
+    const prevSlide = () => setCurrentSlide((prevSlide) => (prevSlide - 1 + slides.length) % slides.length);
+
+    return (
+      <div className="fixed bottom-0 left-0 w-full bg-muted">
+        <div className="relative p-4 text-center text-xs sm:text-sm flex justify-center items-center">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="absolute left-0 top-1/2 transform -translate-y-1/2"
+            onClick={prevSlide}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          
+          <Button
+            variant="link"
+            className="p-0 h-auto font-semibold text-blue-500 hover:text-blue-600 flex flex-col items-center mx-8"
+            onClick={slides[currentSlide].action}
+            size="sm"
+          >
+            {slides[currentSlide].content}
+          </Button>
+          
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="absolute right-0 top-1/2 transform -translate-y-1/2"
+            onClick={nextSlide}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="flex flex-col h-screen">
       {/* Navbar */}
@@ -547,8 +622,8 @@ function HomeContent() {
       {!showSettings && (
         <Dialog>
           <DialogTrigger asChild>
-            <Button className="fixed bottom-4 right-4 rounded-full" size="lg">
-              <PlusCircle className="mr-2 h-4 w-4" /> Registrar Apuesta
+            <Button className="fixed bottom-20 right-4 rounded-full" size="lg">
+              Jugar
             </Button>
           </DialogTrigger>
           <DialogContent>
@@ -622,18 +697,7 @@ function HomeContent() {
         </Dialog>
       )}
 
-      {/* Ad banner */}
-      {isPremium === "aqpb" && adsLoaded && (
-        <div className="bg-muted p-4 text-center">
-          <AdSense.Google
-            client="ca-pub-2628338664951375"
-            slot="8837953789"
-            style={{ display: "block" }}
-            format="auto"
-            responsive="true"
-          />
-        </div>
-      )}
+      {isPremium === "aqpb" && <AdSlider />}
     </div>
   );
 }

@@ -27,7 +27,7 @@ export function Matches() {
   }
   
   return (
-    <div className="grid gap-4 mt-4">
+    <div className="grid gap-4 mt-4 mb-20">
       {matches.map((match, index) => (
         <div
           key={index}
