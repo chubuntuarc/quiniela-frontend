@@ -323,17 +323,17 @@ const Quinielas = ({
         </Alert>
       )}
 
-      {isPremium === "aqpb" || isPremium === "aqpl" && (
+      {isPremium === "aqpb" && (
         <Alert>
           <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>Límites de la versión gratuita</AlertTitle>
+          <AlertTitle>Límites de la versión básica</AlertTitle>
           <AlertDescription>
-            Estás utilizando la versión gratuita, que permite hasta{" "}
+            Estás utilizando la versión básica, que permite hasta{" "}
             {maxFriendsInFreeVersion} amigos y {maxQuinielasInFreeVersion}{" "}
             quiniela.
             <Button
               variant="link"
-              className="p-0 h-auto font-normal text-primary"
+              className="p-0 h-auto font-normal text-blue-500 hover:text-blue-600"
               onClick={() => setShowSettings(true)}
             >
               Suscríbete para obtener funciones ilimitadas
@@ -349,9 +349,8 @@ const Quinielas = ({
         quinielas.filter((q) => q.owner_id === userProfile.id).length === 0 ? (
           <Button
             disabled={
-              (isPremium === "aqpb" ||
-              isPremium === "aqpl") &&
-                quinielas.length >= maxQuinielasInFreeVersion
+              (isPremium === "aqpb" || isPremium === "aqpl") &&
+              quinielas.length >= maxQuinielasInFreeVersion
             }
             className="w-full sm:w-auto"
             onClick={handleCreateQuiniela}

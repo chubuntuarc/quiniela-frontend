@@ -108,13 +108,13 @@ function HomeContent() {
     {
       name: "Pro",
       code: "aqpp",
-      price: "Próximamente",
+      price: "$199",
       features: ["Quinielas ilimitadas", "Amigos ilimitados", "Sin publicidad"],
     },
     {
       name: "Premium",
       code: "aqpr",
-      price: "Próximamente",
+      price: "$399",
       features: [
         "Todo en Pro",
         "Estadísticas avanzadas",
@@ -279,8 +279,9 @@ function HomeContent() {
     const planUrls = {
       Libre:
         "https://www.mercadopago.com.mx/subscriptions/checkout?preapproval_plan_id=2c93808491d6d45e0191de25a6d8033f",
-      Pro: "YOUR_PRO_PLAN_ID",
-      Premium: "YOUR_PREMIUM_PLAN_ID",
+      Pro: "https://www.mercadopago.com.mx/subscriptions/checkout?preapproval_plan_id=2c93808491d6d45e0191de4f781f0354",
+      Premium:
+        "https://www.mercadopago.com.mx/subscriptions/checkout?preapproval_plan_id=2c93808491d6d4130191de5009c0036d",
     };
     if (planName === "Básico") return; // No action for the current plan
     
