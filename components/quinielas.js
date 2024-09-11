@@ -328,9 +328,9 @@ const Quinielas = ({
           <AlertTriangle className="h-4 w-4" />
           <AlertTitle>Límites de la versión básica</AlertTitle>
           <AlertDescription>
-            Estás utilizando la versión básica, que permite hasta{" "}
-            {maxFriendsInFreeVersion} amigos y {maxQuinielasInFreeVersion}{" "}
-            quiniela.
+            Estás utilizando la versión básica, que permite crear{" "}
+            {maxQuinielasInFreeVersion} quiniela de {maxFriendsInFreeVersion}{" "}
+            amigos.
             <Button
               variant="link"
               className="p-0 h-auto font-normal text-blue-500 hover:text-blue-600"

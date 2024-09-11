@@ -91,7 +91,7 @@ export default function Login({ setSession, setUser }) {
               </button>
             </div>
           </div>
-          <div className="relative">
+          {/* <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t" />
             </div>
@@ -100,17 +100,15 @@ export default function Login({ setSession, setUser }) {
                 O inicia sesión con
               </span>
             </div>
-          </div>
-          <div className="grid grid-cols-2 gap-6">
+          </div> */}
+          {/* <div className="grid grid-cols-2 gap-6">
             <Button variant="outline">
-              {/* <Icons.facebook className="mr-2 h-4 w-4" /> */}
               Facebook
             </Button>
             <Button variant="outline">
-              {/* <Icons.google className="mr-2 h-4 w-4" /> */}
               Google
             </Button>
-          </div>
+          </div> */}
           {errorMessage && (
             <div className="text-red-500 text-sm text-center">
               {errorMessage}

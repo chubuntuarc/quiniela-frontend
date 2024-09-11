@@ -312,9 +312,7 @@ function HomeContent() {
       {
         content: (
           <>
-            <span>
-              Suscríbete a premium para tener acceso completo,
-            </span>
+            <span>Suscríbete a premium para tener acceso completo,</span>
             <span>sin anuncios y con soporte priorizado 🎉</span>
           </>
         ),
@@ -331,6 +329,19 @@ function HomeContent() {
         ),
         action: () =>
           window.open("https://hostinger.com?REFERRALCODE=1JESUS469", "_blank"),
+      },
+      {
+        content: (
+          <>
+            <span>Compra, vende y gasta dólares digitales,</span>
+            <span>seguro y con la mejor comisión en México 💵</span>
+          </>
+        ),
+        action: () =>
+          window.open(
+            "https://www.dolarapp.com/referrals/onboard?referralCode=jesusarciniega_G7O",
+            "_blank"
+          ),
       },
     ];
 
@@ -362,6 +373,7 @@ function HomeContent() {
             className="p-0 h-auto font-semibold text-blue-500 hover:text-blue-600 flex flex-col items-center mx-8"
             onClick={slides[currentSlide].action}
             size="sm"
+            style={{ fontSize: '13px' }}
           >
             {slides[currentSlide].content}
           </Button>
