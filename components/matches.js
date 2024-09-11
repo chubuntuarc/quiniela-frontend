@@ -33,7 +33,7 @@ export function Matches() {
           key={index}
           className="bg-muted p-4 rounded-lg flex justify-between items-center"
         >
-          <div className="flex items-center">
+          <div className="flex items-center w-1/3">
             <Image
               src={match.teams.home.logo}
               alt={match.teams.home.name}
@@ -41,16 +41,16 @@ export function Matches() {
               height={32}
               className="mr-2"
             />
-            <span>{match.teams.home.name}</span>
+            <span className="text-xs sm:text-sm truncate">{match.teams.home.name}</span>
           </div>
-          <div className="text-center">
-            <div className="font-bold">{`${match.goals.home} - ${match.goals.away}`}</div>
-            <div className="text-sm text-muted-foreground">
+          <div className="text-center flex flex-col items-center w-1/3">
+            <div className="font-bold text-base sm:text-lg">{`${match.goals.home} - ${match.goals.away}`}</div>
+            <div className="text-xs text-muted-foreground">
               {match.fixture.status.short === 'FT' ? 'Final' : `${match.fixture.status.elapsed}'`}
             </div>
           </div>
-          <div className="flex items-center">
-            <span>{match.teams.away.name}</span>
+          <div className="flex items-center justify-end w-1/3">
+            <span className="text-xs sm:text-sm truncate">{match.teams.away.name}</span>
             <Image
               src={match.teams.away.logo}
               alt={match.teams.away.name}

@@ -453,19 +453,19 @@ function HomeContent() {
             className="w-full"
           >
             <TabsList className="w-full flex flex-wrap justify-start gap-2">
-              <TabsTrigger value="standings" className="flex-grow basis-auto">
+              <TabsTrigger value="standings" className="flex-grow basis-auto text-xs sm:text-sm">
                 Tabla
               </TabsTrigger>
-              <TabsTrigger value="live" className="flex-grow basis-auto">
+              <TabsTrigger value="live" className="flex-grow basis-auto text-xs sm:text-sm">
                 Juegos
               </TabsTrigger>
               <TabsTrigger
                 value="participants"
-                className="flex-grow basis-auto"
+                className="flex-grow basis-auto text-xs sm:text-sm"
               >
                 Participantes
               </TabsTrigger>
-              <TabsTrigger value="quinielas" className="flex-grow basis-auto">
+              <TabsTrigger value="quinielas" className="flex-grow basis-auto text-xs sm:text-sm">
                 Quinielas
               </TabsTrigger>
             </TabsList>
