@@ -75,8 +75,11 @@ const QuinielaForm = ({ user, setShowSettings }) => {
     async function fetchData() {
       try {
         const data = await fetchMatches();
-        setMatches(data);
-        setMatchValues(data.map((match) => ({ id: match.fixture.id, home: '', away: '' }))); // Initialize matchValues based on fetched matches
+        const roundMatches = data.filter(
+          (match) => match.league.round === data[0].league.round
+        );
+        setMatches(roundMatches);
+        setMatchValues(roundMatches.map((match) => ({ id: match.fixture.id, home: '', away: '' }))); // Initialize matchValues based on fetched matches
         await fetchQuinielas();
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -92,14 +95,18 @@ const QuinielaForm = ({ user, setShowSettings }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="fixed bottom-20 right-4 rounded-full" size="lg">
-          Jugar
-        </Button>
+        {matches[0]?.fixture?.status?.short === "NS" && (
+          <Button className="fixed bottom-20 right-4 rounded-full" size="lg">
+            Jugar
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Registrar Apuesta</DialogTitle>
-          <DialogDescription>Registra el resultado de cada partido</DialogDescription>
+          <DialogDescription>
+            Registra el resultado de cada partido
+          </DialogDescription>
           {quinielas.length > 1 && (
             <Select>
               <SelectTrigger>
@@ -117,7 +124,10 @@ const QuinielaForm = ({ user, setShowSettings }) => {
         </DialogHeader>
         <div className="grid gap-4">
           {matches.map((match, index) => (
-            <div key={index} className="flex items-center justify-between gap-4">
+            <div
+              key={index}
+              className="flex items-center justify-between gap-4"
+            >
               <div className="flex items-center">
                 <Image
                   src={match.teams.home.logo}
@@ -131,7 +141,7 @@ const QuinielaForm = ({ user, setShowSettings }) => {
                 min="0"
                 placeholder="Local"
                 className="w-24 p-1 border rounded"
-                value={matchValues[index]?.home || ''}
+                value={matchValues[index]?.home || ""}
                 onChange={(e) => {
                   const newValues = [...matchValues];
                   newValues[index].home = e.target.value;
@@ -144,7 +154,7 @@ const QuinielaForm = ({ user, setShowSettings }) => {
                 min="0"
                 placeholder="Visitante"
                 className="w-24 p-1 border rounded"
-                value={matchValues[index]?.away || ''}
+                value={matchValues[index]?.away || ""}
                 onChange={(e) => {
                   const newValues = [...matchValues];
                   newValues[index].away = e.target.value;
@@ -161,17 +171,26 @@ const QuinielaForm = ({ user, setShowSettings }) => {
               </div>
             </div>
           ))}
-          <div type="button" onClick={() => {
-            // Validate that all inputs are filled
-            const allInputsFilled = matchValues.every(match => match.home !== '' && match.away !== '');
-            if (!allInputsFilled) {
-              alert("Por favor, completa todos los campos de apuesta.");
-              return; // Exit if not all inputs are filled
-            }
-            if (window.confirm("¿Estás seguro de que deseas confirmar la apuesta?")) {
-              saveBet({ user, quinielaId: activeQuiniela.id, matchValues });
-            }
-          }}>
+          <div
+            type="button"
+            onClick={() => {
+              // Validate that all inputs are filled
+              const allInputsFilled = matchValues.every(
+                (match) => match.home !== "" && match.away !== ""
+              );
+              if (!allInputsFilled) {
+                alert("Por favor, completa todos los campos de apuesta.");
+                return; // Exit if not all inputs are filled
+              }
+              if (
+                window.confirm(
+                  "¿Estás seguro de que deseas confirmar la apuesta?"
+                )
+              ) {
+                saveBet({ user, quinielaId: activeQuiniela.id, matchValues });
+              }
+            }}
+          >
             <Button className="w-full">Confirmar Apuesta</Button>
           </div>
         </div>

@@ -38,7 +38,10 @@ const ParticipantsTable = ({ user }) => {
     }
     
     const matches = await fetchMatches();
-    setMatches(matches);
+    const roundMatches = matches.filter(
+      (match) => match.league.round === matches[0].league.round
+    );
+    setMatches(roundMatches);
 
     const { data: userQuinielas, error: userQuinielasError } = await supabase
       .from("user_quinielas")
@@ -65,7 +68,7 @@ const ParticipantsTable = ({ user }) => {
   return (
     <div className="container mx-auto py-2 px-2">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Participantes</h2>
+        <h2 className="text-1xl font-bold">Participantes</h2>
         <select onChange={(e) => setActiveQuiniela(e.target.value)}>
           {quinielas.map((quiniela) => (
             <option key={quiniela.id} value={quiniela.id}>
@@ -86,6 +89,8 @@ const ParticipantsTable = ({ user }) => {
                   src={match.teams.home.logo}
                   alt="Home Team Logo"
                   className="mx-auto"
+                  width={20}
+                  height={20}
                 />{" "}
                 <span
                   style={{
@@ -100,12 +105,38 @@ const ParticipantsTable = ({ user }) => {
                   src={match.teams.away.logo}
                   alt="Away Team Logo"
                   className="mx-auto"
+                  width={20}
+                  height={20}
                 />
               </th>
             ))}
           </tr>
         </thead>
         <tbody>
+          <tr className="border-b border-gray-300 bg-muted">
+            <td
+              className="p-2"
+              style={{
+                fontSize: "10px",
+                fontWeight: "bold",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                maxWidth: "80px",
+              }}
+            >
+              Resultados
+            </td>
+            {matches?.map((match, matchIdx) => (
+              <td
+                className="p-1 text-center"
+                style={{ fontSize: "10px", fontWeight: "bold" }}
+                key={matchIdx}
+              >
+                {match.goals.home}-{match.goals.away}
+              </td>
+            ))}
+          </tr>
           {bets?.map((bet, betIndex) => (
             <tr key={betIndex} className="border-b">
               <td
@@ -134,6 +165,18 @@ const ParticipantsTable = ({ user }) => {
                       matches[matchIdx].fixture.score?.fulltime.home;
                     const actualAwayScore =
                       matches[matchIdx].fixture.score?.fulltime.away;
+                    const betResult =
+                      bet.match_values[matchIdx].home > bet.match_values[matchIdx].away
+                        ? "home"
+                        : bet.match_values[matchIdx].home < bet.match_values[matchIdx].away
+                        ? "away"
+                        : "draw";
+                    const matchResult =
+                      matches[matchIdx].goals.home > matches[matchIdx].goals.away
+                        ? "home"
+                        : matches[matchIdx].goals.home < matches[matchIdx].goals.away
+                        ? "away"
+                        : "draw";
 
                     if (
                       matches[matchIdx].fixture.status.short === "1H" ||
@@ -148,19 +191,9 @@ const ParticipantsTable = ({ user }) => {
                       bet.match_values[matchIdx].home === actualHomeScore &&
                       bet.match_values[matchIdx].away === actualAwayScore
                     ) {
-                      return <span className="text-green-500">🟨</span>; // Exact result
-                    } else if (
-                      (bet.match_values[matchIdx].home >
-                        bet.match_values[matchIdx].away &&
-                        actualHomeScore > actualAwayScore) ||
-                      (bet.match_values[matchIdx].home <
-                        bet.match_values[matchIdx].away &&
-                        actualHomeScore < actualAwayScore) ||
-                      (bet.match_values[matchIdx].home ===
-                        bet.match_values[matchIdx].away &&
-                        actualHomeScore === actualAwayScore)
-                    ) {
-                      return <span className="text-yellow-500">✅</span>; // Correct winner or tie
+                      return <span className="text-green-500">✅</span>; // Exact result
+                    } else if (betResult === matchResult) {
+                      return <span className="text-yellow-500">🟨</span>; // Correct winner or tie
                     } else {
                       return <span className="text-red-500">❌</span>; // Wrong bet
                     }
