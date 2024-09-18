@@ -61,7 +61,7 @@ const QuinielaForm = ({ user, setShowSettings }) => {
       const { quinielaId, matchValues } = betData;
       const { error } = await supabase
         .from("bets")
-        .insert([{ user_id: user.id, quiniela_id: quinielaId, match_values: JSON.stringify(matchValues) }]);
+        .insert([{ user_id: user.id, name: user.name, quiniela_id: quinielaId, match_values: JSON.stringify(matchValues) }]);
 
       if (error) throw error;
       console.log("Bet saved successfully");

@@ -37,6 +37,7 @@ import { Matches } from '../components/matches';
 import ProfileForm from '../components/profile';
 import Quinielas from '../components/quinielas';
 import QuinielaForm from '../components/quinielaForm';
+import ParticipantsTable from '../components/participants';
 import { useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 
@@ -586,30 +587,7 @@ function HomeContent() {
               <Matches />
             </TabsContent>
             <TabsContent value="participants">
-              <table className="w-full mt-4">
-                <thead>
-                  <tr className="bg-muted">
-                    <th className="p-2 text-left">Usuario</th>
-                    <th className="p-2 text-center">Apuestas</th>
-                    <th className="p-2 text-center">Ganadas</th>
-                    <th className="p-2 text-center">Perdidas</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {[
-                    { user: "Usuario1", bets: 15, won: 10, lost: 5 },
-                    { user: "Usuario2", bets: 12, won: 8, lost: 4 },
-                    { user: "Usuario3", bets: 10, won: 6, lost: 4 },
-                  ].map((participant, index) => (
-                    <tr key={index} className="border-b">
-                      <td className="p-2">{participant.user}</td>
-                      <td className="p-2 text-center">{participant.bets}</td>
-                      <td className="p-2 text-center">{participant.won}</td>
-                      <td className="p-2 text-center">{participant.lost}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <ParticipantsTable user={userProfile.user}/>
             </TabsContent>
             <TabsContent value="quinielas">
               <Quinielas
