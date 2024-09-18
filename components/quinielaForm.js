@@ -7,12 +7,14 @@ import { fetchMatches } from '../lib/matches';
 import { getSupabase } from '../lib/supabaseClient';
 let supabase;
 
-const QuinielaForm = ({ user }) => {
+const QuinielaForm = ({ user, setShowSettings }) => {
   const [matches, setMatches] = useState([]);
   const [error, setError] = useState(null);
   const [quinielas, setQuinielas] = useState([]);
   const [activeQuiniela, setActiveQuiniela] = useState(null);
+  const [bet, setBet] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [matchValues, setMatchValues] = useState([]);
 
   const fetchQuinielas = async () => {
     if (!supabase) {
@@ -20,8 +22,6 @@ const QuinielaForm = ({ user }) => {
     }
     try {
       setLoading(true);
-      
-      console.log(user);
 
       // First, get the quiniela IDs from user_quinielas
       const { data: userQuinielas, error: userQuinielasError } = await supabase
@@ -51,12 +51,32 @@ const QuinielaForm = ({ user }) => {
       setLoading(false);
     }
   };
+  
+  const saveBet = async (betData) => {
+    if (!supabase) {
+      supabase = getSupabase();
+    }
+    try {
+      const { user } = betData;
+      const { quinielaId, matchValues } = betData;
+      const { error } = await supabase
+        .from("bets")
+        .insert([{ user_id: user.id, quiniela_id: quinielaId, match_values: JSON.stringify(matchValues) }]);
+
+      if (error) throw error;
+      console.log("Bet saved successfully");
+      setShowSettings(false);
+    } catch (error) {
+      console.error("Error saving bet:", error);
+    }
+  }
 
   useEffect(() => {
     async function fetchData() {
       try {
         const data = await fetchMatches();
         setMatches(data);
+        setMatchValues(data.map((match) => ({ id: match.fixture.id, home: '', away: '' }))); // Initialize matchValues based on fetched matches
         await fetchQuinielas();
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -111,6 +131,12 @@ const QuinielaForm = ({ user }) => {
                 min="0"
                 placeholder="Local"
                 className="w-24 p-1 border rounded"
+                value={matchValues[index]?.home || ''}
+                onChange={(e) => {
+                  const newValues = [...matchValues];
+                  newValues[index].home = e.target.value;
+                  setMatchValues(newValues);
+                }}
               />
               <span className="text-center font-bold">vs</span>
               <input
@@ -118,6 +144,12 @@ const QuinielaForm = ({ user }) => {
                 min="0"
                 placeholder="Visitante"
                 className="w-24 p-1 border rounded"
+                value={matchValues[index]?.away || ''}
+                onChange={(e) => {
+                  const newValues = [...matchValues];
+                  newValues[index].away = e.target.value;
+                  setMatchValues(newValues);
+                }}
               />
               <div className="flex items-center">
                 <Image
@@ -129,7 +161,13 @@ const QuinielaForm = ({ user }) => {
               </div>
             </div>
           ))}
-          <Button type="submit">Confirmar Apuesta</Button>
+          <div type="button" onClick={() => {
+            if (window.confirm("¿Estás seguro de que deseas confirmar la apuesta?")) {
+              saveBet({ user, quinielaId: activeQuiniela.id, matchValues });
+            }
+          }}>
+            <Button className="w-full">Confirmar Apuesta</Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

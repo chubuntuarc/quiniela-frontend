@@ -633,7 +633,7 @@ function HomeContent() {
 
       {/* Floating bet button and modal */}
       {!showSettings && (
-        <QuinielaForm user={userProfile.user} />
+        <QuinielaForm user={userProfile.user} setShowSettings={setShowSettings} />
       )}
 
       {isPremium === "aqpb" && <AdSlider />}
