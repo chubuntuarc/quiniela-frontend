@@ -110,18 +110,30 @@ const ParticipantsTable = ({ user }) => {
             <tr key={betIndex} className="border-b">
               <td
                 className="p-2"
-                style={{ fontSize: "10px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "80px" }}
+                style={{
+                  fontSize: "10px",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  maxWidth: "80px",
+                }}
               >
                 {bet.name}
               </td>
               {matches?.map((match, matchIdx) => (
-                <td className="p-1 text-center" style={{ fontSize: "10px" }} key={matchIdx}>
+                <td
+                  className="p-1 text-center"
+                  style={{ fontSize: "10px" }}
+                  key={matchIdx}
+                >
                   {bet.match_values[matchIdx].home}-
                   {bet.match_values[matchIdx].away}
                   <br />
                   {(() => {
-                    const actualHomeScore = matches[matchIdx].fixture.score?.fulltime.home;
-                    const actualAwayScore = matches[matchIdx].fixture.score?.fulltime.away;                    
+                    const actualHomeScore =
+                      matches[matchIdx].fixture.score?.fulltime.home;
+                    const actualAwayScore =
+                      matches[matchIdx].fixture.score?.fulltime.away;
 
                     if (
                       matches[matchIdx].fixture.status.short === "1H" ||
@@ -159,6 +171,10 @@ const ParticipantsTable = ({ user }) => {
           ))}
         </tbody>
       </table>
+      <div className="text-xs text-muted-foreground">
+        <br />
+        *Los resultados se actualizan cada hora.
+      </div>
     </div>
   );
 };

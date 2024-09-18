@@ -28,6 +28,9 @@ export function Matches() {
   
   return (
     <div className="grid gap-4 mt-4 mb-20">
+      <div className="text-xs text-muted-foreground">
+        *Los resultados se actualizan cada hora.
+      </div>
       {matches.map((match, index) => (
         <div
           key={index}
