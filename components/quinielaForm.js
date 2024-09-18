@@ -61,11 +61,11 @@ const QuinielaForm = ({ user, setShowSettings }) => {
       const { quinielaId, matchValues } = betData;
       const { error } = await supabase
         .from("bets")
-        .insert([{ user_id: user.id, name: user.name, quiniela_id: quinielaId, match_values: JSON.stringify(matchValues) }]);
+        .insert([{ user_id: user.id, name: user.user_metadata.name, quiniela_id: quinielaId, match_values: JSON.stringify(matchValues) }]);
 
       if (error) throw error;
       console.log("Bet saved successfully");
-      setShowSettings(false);
+      window.location.reload();
     } catch (error) {
       console.error("Error saving bet:", error);
     }
@@ -162,6 +162,12 @@ const QuinielaForm = ({ user, setShowSettings }) => {
             </div>
           ))}
           <div type="button" onClick={() => {
+            // Validate that all inputs are filled
+            const allInputsFilled = matchValues.every(match => match.home !== '' && match.away !== '');
+            if (!allInputsFilled) {
+              alert("Por favor, completa todos los campos de apuesta.");
+              return; // Exit if not all inputs are filled
+            }
             if (window.confirm("¿Estás seguro de que deseas confirmar la apuesta?")) {
               saveBet({ user, quinielaId: activeQuiniela.id, matchValues });
             }
