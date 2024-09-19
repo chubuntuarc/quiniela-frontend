@@ -29,6 +29,9 @@ export function StandingsTable() {
 
   return (
     <div className="overflow-x-auto">
+      <div className="flex justify-center items-center">
+        <h1 className="text-1xl font-bold">Tabla de Posiciones</h1>
+      </div>
       <table className="w-full mt-2 min-w-[320px]">
         <thead>
           <tr className="bg-muted">

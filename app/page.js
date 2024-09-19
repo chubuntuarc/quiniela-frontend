@@ -308,7 +308,7 @@ function HomeContent() {
     aqpr: "Plan Premium"
   };
 
-  const AdSlider = () => {
+  const AdSlider = ({ top }) => {
     const [currentSlide, setCurrentSlide] = useState(0);
     const slides = [
       {
@@ -346,43 +346,90 @@ function HomeContent() {
           ),
       },
     ];
+    
+    const topSlides = [
+      {
+        content: (
+          <>
+            <img
+              src="/ads/anunciate.png"
+              alt="Anuncio"
+              className="w-full h-full object-cover"
+            />
+          </>
+        ),
+        action: () => window.open("mailto:jesus@arciniega.dev", "_blank"),
+      },
+      {
+        content: (
+          <>
+            <img
+              src="/ads/cover.png"
+              alt="Anuncio"
+              className="w-full h-full object-cover"
+            />
+          </>
+        ),
+        action: () => window.open("https://arciniega.dev", "_blank"),
+      },
+      {
+        content: (
+          <>
+            <img
+              src="/ads/no_ads.png"
+              alt="Anuncio"
+              className="w-full h-full object-cover"
+            />
+          </>
+        ),
+        action: () => setShowSettings(true),
+      },
+    ];
 
     useEffect(() => {
       const timer = setInterval(() => {
-        setCurrentSlide((prevSlide) => (prevSlide + 1) % slides.length);
+        if (top) {
+          setCurrentSlide((prevSlide) => (prevSlide + 1) % topSlides.length);
+        } else {
+          setCurrentSlide((prevSlide) => (prevSlide + 1) % slides.length);
+        }
       }, 10000); // Change slide every 5 seconds
 
       return () => clearInterval(timer);
     }, []);
 
-    const nextSlide = () => setCurrentSlide((prevSlide) => (prevSlide + 1) % slides.length);
-    const prevSlide = () => setCurrentSlide((prevSlide) => (prevSlide - 1 + slides.length) % slides.length);
+    const nextSlide = () => top ? setCurrentSlide((prevSlide) => (prevSlide + 1) % topSlides.length) : setCurrentSlide((prevSlide) => (prevSlide + 1) % slides.length);
+    const prevSlide = () => top ? setCurrentSlide((prevSlide) => (prevSlide - 1 + topSlides.length) % topSlides.length) : setCurrentSlide((prevSlide) => (prevSlide - 1 + slides.length) % slides.length);
 
     return (
-      <div className="fixed bottom-0 left-0 w-full bg-muted">
-        <div className="relative p-4 text-center text-xs sm:text-sm flex justify-center items-center">
-          <Button 
-            variant="ghost" 
-            size="sm" 
+      <div
+        className={` left-0 w-full bg-muted ${
+          top ? "top-0" : "fixed bottom-0"
+        }`}
+      >
+        <div className="relative p-0 text-center text-xs sm:text-sm flex justify-center items-center">
+          <Button
+            variant="ghost"
+            size="sm"
             className="absolute left-0 top-1/2 transform -translate-y-1/2"
             onClick={prevSlide}
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          
+
           <Button
             variant="link"
             className="p-0 h-auto font-semibold text-blue-500 hover:text-blue-600 flex flex-col items-center mx-8"
-            onClick={slides[currentSlide].action}
+            onClick={top ? topSlides[currentSlide].action : slides[currentSlide].action}
             size="sm"
-            style={{ fontSize: '13px' }}
+            style={{ fontSize: "13px", margin: 0 }}
           >
-            {slides[currentSlide].content}
+            {top ? topSlides[currentSlide].content : slides[currentSlide].content}
           </Button>
-          
-          <Button 
-            variant="ghost" 
-            size="sm" 
+
+          <Button
+            variant="ghost"
+            size="sm"
             className="absolute right-0 top-1/2 transform -translate-y-1/2"
             onClick={nextSlide}
           >
@@ -452,6 +499,7 @@ function HomeContent() {
           {planLabels[isPremium]}
         </span>
       )}
+      {isPremium === "aqpb" && <AdSlider top={true} />}
 
       {/* Alert message */}
       {alertMessage && (
@@ -587,7 +635,7 @@ function HomeContent() {
               <Matches />
             </TabsContent>
             <TabsContent value="participants">
-              <ParticipantsTable user={userProfile.user}/>
+              <ParticipantsTable user={userProfile.user} />
             </TabsContent>
             <TabsContent value="quinielas">
               <Quinielas
@@ -611,7 +659,10 @@ function HomeContent() {
 
       {/* Floating bet button and modal */}
       {!showSettings && (
-        <QuinielaForm user={userProfile.user} setShowSettings={setShowSettings} />
+        <QuinielaForm
+          user={userProfile.user}
+          setShowSettings={setShowSettings}
+        />
       )}
 
       {isPremium === "aqpb" && <AdSlider />}
