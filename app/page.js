@@ -115,16 +115,16 @@ function HomeContent() {
       price: "$199",
       features: ["Quinielas ilimitadas", "Amigos ilimitados", "Sin publicidad"],
     },
-    {
-      name: "Premium",
-      code: "aqpr",
-      price: "$399",
-      features: [
-        "Todo en Pro",
-        "Estadísticas avanzadas",
-        "Soporte prioritario",
-      ],
-    },
+    // {
+    //   name: "Premium",
+    //   code: "aqpr",
+    //   price: "$399",
+    //   features: [
+    //     "Todo en Pro",
+    //     "Estadísticas avanzadas",
+    //     "Soporte prioritario",
+    //   ],
+    // },
   ];
   
   useEffect(() => {
@@ -452,7 +452,7 @@ function HomeContent() {
         </div>
         <div className="flex items-center space-x-4">
           {/* <span className="hidden md:inline">Créditos: $1000</span> */}
-          <Bell className="h-6 w-6" />
+          {/* <Bell className="h-6 w-6" /> */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Avatar className="cursor-pointer">
@@ -481,7 +481,14 @@ function HomeContent() {
                 <CreditCard className="mr-2 h-4 w-4" />
                 <span>Registrar créditos</span>
               </DropdownMenuItem> */}
-              <DropdownMenuItem>
+              <DropdownMenuItem
+                onSelect={() =>
+                  window.open(
+                    "mailto:jesus@arciniega.dev?subject=Soporte Astro Quinielas",
+                    "_blank"
+                  )
+                }
+              >
                 <HelpCircle className="mr-2 h-4 w-4" />
                 <span>Ayuda</span>
               </DropdownMenuItem>
