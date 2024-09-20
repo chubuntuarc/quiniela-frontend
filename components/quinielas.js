@@ -37,6 +37,10 @@ const Quinielas = ({
   useEffect(() => {
     fetchQuinielas();
   }, []);
+  
+  useEffect(() => {
+    console.log(quinielas.filter((q) => q.owner_id === userProfile.id).length);
+  }, [quinielas]);
 
   const fetchQuinielas = async () => {
     if (!supabase) {
@@ -306,7 +310,7 @@ const Quinielas = ({
   };
 
   return (
-    <div className="mt-4 space-y-4">
+    <div className="mb-20 mt-4 space-y-4">
       {error && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
@@ -348,10 +352,6 @@ const Quinielas = ({
         isPremium === "aqpr" ||
         quinielas.filter((q) => q.owner_id === userProfile.id).length === 0 ? (
           <Button
-            disabled={
-              (isPremium === "aqpb" || isPremium === "aqpl") &&
-              quinielas.length >= maxQuinielasInFreeVersion
-            }
             className="w-full sm:w-auto"
             onClick={handleCreateQuiniela}
           >
