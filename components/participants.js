@@ -80,9 +80,7 @@ const ParticipantsTable = ({ user }) => {
       <table className="w-full mt-4 overflow-x-auto">
         <thead>
           <tr className="bg-muted">
-            <th className="p-2 text-left" style={{ fontSize: "10px" }}>
-              Nombre
-            </th>
+            <th className="p-2 text-left" style={{ fontSize: "10px" }}></th>
             {matches?.map((match, index) => (
               <th className="p-2 text-left text-center" key={index}>
                 <img
@@ -166,15 +164,19 @@ const ParticipantsTable = ({ user }) => {
                     const actualAwayScore =
                       matches[matchIdx].fixture.score?.fulltime.away;
                     const betResult =
-                      bet.match_values[matchIdx].home > bet.match_values[matchIdx].away
+                      bet.match_values[matchIdx].home >
+                      bet.match_values[matchIdx].away
                         ? "home"
-                        : bet.match_values[matchIdx].home < bet.match_values[matchIdx].away
+                        : bet.match_values[matchIdx].home <
+                          bet.match_values[matchIdx].away
                         ? "away"
                         : "draw";
                     const matchResult =
-                      matches[matchIdx].goals.home > matches[matchIdx].goals.away
+                      matches[matchIdx].goals.home >
+                      matches[matchIdx].goals.away
                         ? "home"
-                        : matches[matchIdx].goals.home < matches[matchIdx].goals.away
+                        : matches[matchIdx].goals.home <
+                          matches[matchIdx].goals.away
                         ? "away"
                         : "draw";
 
@@ -204,10 +206,16 @@ const ParticipantsTable = ({ user }) => {
           ))}
         </tbody>
       </table>
-      <div className="text-xs text-muted-foreground">
-        <br />
-        *Los resultados se actualizan cada hora.
-      </div>
+      {quinielas.length === 0 ? (
+        <div className="text-center text-muted-foreground">
+          No hay quinielas disponibles.
+        </div>
+      ) : (
+        <div className="text-xs text-muted-foreground">
+          <br />
+          *Los resultados se actualizan cada hora.
+        </div>
+      )}
     </div>
   );
 };

@@ -95,7 +95,7 @@ const QuinielaForm = ({ user, setShowSettings }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        {matches[0]?.fixture?.status?.short === "NS" && (
+        {matches[0]?.fixture?.status?.short === "NS" && quinielas.length > 0 && (
           <Button className="fixed bottom-20 right-4 rounded-full" size="lg">
             Jugar
           </Button>

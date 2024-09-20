@@ -11,7 +11,6 @@ export function Matches() {
       try {
         const data = await fetchMatches();
         const matches = data.filter((match) => match.league.round === data[0].league.round);
-        console.log(matches);
         setMatches(matches);
       } catch (error) {
         console.error("Error fetching data:", error);
