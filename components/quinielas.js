@@ -49,7 +49,7 @@ const Quinielas = ({
       const { data: userQuinielas, error: userQuinielasError } = await supabase
         .from("user_quinielas")
         .select("quiniela_id")
-        .eq("user_id", userProfile.id);
+        .eq("user_id", userProfile?.id);
 
       if (userQuinielasError) throw userQuinielasError;
 
@@ -142,7 +142,7 @@ const Quinielas = ({
         .from("user_quinielas")
         .insert([
           {
-            user_id: userProfile.id,
+            user_id: userProfile?.id,
             quiniela_id: data[0].id,
           },
         ]);

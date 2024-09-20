@@ -149,7 +149,7 @@ function HomeContent() {
       const { data, error: userPlanError } = await supabase
         .from("user_plan")
         .select("plan_code")
-        .eq("user_id", session.session?.user.id)
+        .eq("user_id", session.session?.user?.id)
         .single();
 
       if (data) {

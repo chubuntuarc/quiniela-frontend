@@ -34,6 +34,8 @@ export default function Signup({ setShowSignup, setSession, setUser }) {
         setSession(true);
         setUser(result.user);
         setShowSignup(false);
+        console.log("User signed up successfully");
+        window.location.reload();
       } else {
         setError(result.error || "Hubo un error durante el registro. Por favor, intenta de nuevo.");
       }

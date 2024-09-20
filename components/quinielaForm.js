@@ -27,7 +27,7 @@ const QuinielaForm = ({ user, setShowSettings }) => {
       const { data: userQuinielas, error: userQuinielasError } = await supabase
         .from("user_quinielas")
         .select("quiniela_id")
-        .eq("user_id", user.id);
+        .eq("user_id", user?.id);
 
       if (userQuinielasError) throw userQuinielasError;
 
@@ -61,7 +61,7 @@ const QuinielaForm = ({ user, setShowSettings }) => {
       const { quinielaId, matchValues } = betData;
       const { error } = await supabase
         .from("bets")
-        .insert([{ user_id: user.id, name: user.user_metadata.name, quiniela_id: quinielaId, match_values: JSON.stringify(matchValues) }]);
+        .insert([{ user_id: user?.id, name: user.user_metadata.name, quiniela_id: quinielaId, match_values: JSON.stringify(matchValues) }]);
 
       if (error) throw error;
       console.log("Bet saved successfully");
